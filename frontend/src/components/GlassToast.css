@@ -1,0 +1,149 @@
+/* ========================================================================= */
+/* GLASSMORPHIC TOAST NOTIFICATIONS (COMING FROM THE RIGHT SIDE)             */
+/* Premium Frosted Glassmorphism with Smooth Spring Sliding Animations       */
+/* ========================================================================= */
+
+@keyframes toastSlideInRight {
+  0% {
+    opacity: 0;
+    transform: translateX(120%) scale(0.92);
+  }
+  68% {
+    opacity: 1;
+    transform: translateX(-6px) scale(1.015);
+  }
+  85% {
+    transform: translateX(2px) scale(0.995);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes toastSlideOutRight {
+  0% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(125%) scale(0.92);
+  }
+}
+
+@keyframes toastProgressShrink {
+  0% {
+    transform: scaleX(1);
+  }
+  100% {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes toastPulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 12px currentColor;
+  }
+  50% {
+    box-shadow: 0 0 22px currentColor;
+  }
+}
+
+.sm-glass-toast-portal {
+  position: fixed;
+  top: 22px;
+  right: 24px;
+  z-index: 999999;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 440px;
+  width: calc(100vw - 48px);
+  pointer-events: none;
+}
+
+.sm-glass-toast-card {
+  pointer-events: auto;
+  position: relative;
+  overflow: hidden;
+  border-radius: 14px;
+  padding: 14px 16px 16px 14px;
+  background: var(--bg-popover);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid var(--border-default);
+  box-shadow: var(--shadow-popover);
+  animation: toastSlideInRight 0.38s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, filter 0.2s ease;
+  will-change: transform, opacity;
+  user-select: none;
+}
+
+.sm-glass-toast-card:hover {
+  transform: translateY(-2px) scale(1.01);
+  filter: brightness(1.04);
+}
+
+.sm-glass-toast-card.is-dismissing {
+  animation: toastSlideOutRight 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.sm-toast-icon-badge {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.sm-glass-toast-card:hover .sm-toast-icon-badge {
+  transform: scale(1.08);
+}
+
+.sm-toast-close-btn {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  flex-shrink: 0;
+}
+
+.sm-toast-close-btn:hover {
+  color: var(--text-primary);
+  background: var(--bg-surface-hover);
+  border-color: var(--border-strong);
+  transform: rotate(90deg) scale(1.1);
+}
+
+.sm-toast-progress-track {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3.5px;
+  background: var(--border-subtle);
+  overflow: hidden;
+}
+
+.sm-toast-progress-fill {
+  height: 100%;
+  width: 100%;
+  transform-origin: left;
+  animation-name: toastProgressShrink;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+.sm-toast-progress-fill.is-paused {
+  animation-play-state: paused;
+}

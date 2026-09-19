@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import api, { API_BASE_URL } from '../services/api';
+import api, { API_BASE_URL, SOCKET_URL } from '../services/api';
 import { io } from 'socket.io-client';
 
 const AuthContext = createContext(null);
@@ -48,9 +48,10 @@ export const AuthProvider = ({ children }) => {
   // Connect to Socket.io when user is logged in
   useEffect(() => {
     if (user) {
-      const socketUrl = API_BASE_URL.replace('/api', '');
+      const socketUrl = SOCKET_URL || API_BASE_URL.replace(/\/api\/?$/, '');
       const newSocket = io(socketUrl, {
         withCredentials: true,
+        transports: ['websocket', 'polling'],
       });
 
       newSocket.on('connect', () => {

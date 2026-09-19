@@ -34,17 +34,14 @@ const app = express();
 const server =
   http.createServer(app);
 
+const allowedOrigins = process.env.CLIENT_URL
+  ? process.env.CLIENT_URL.split(',').map((url) => url.trim().replace(/\/+$/, ''))
+  : ['http://localhost:5173'];
+
 const io = new Server(server, {
   cors: {
-    origin:
-      process.env.CLIENT_URL ||
-      "http://localhost:5173",
-
-    methods: [
-      "GET",
-      "POST",
-      "PUT",
-    ],
+    origin: allowedOrigins.length === 1 ? allowedOrigins[0] : allowedOrigins,
+    methods: ['GET', 'POST', 'PUT'],
     credentials: true,
   },
 });
@@ -93,9 +90,7 @@ app.use(helmet());
 
 app.use(
   cors({
-    origin:
-      process.env.CLIENT_URL ||
-      "http://localhost:5173",
+    origin: allowedOrigins.length === 1 ? allowedOrigins[0] : allowedOrigins,
     credentials: true,
   })
 );

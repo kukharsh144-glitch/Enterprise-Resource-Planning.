@@ -31,6 +31,9 @@ import systemSettingRoutes from "./routes/systemSetting.route.js";
 
 const app = express();
 
+// Trust reverse proxy (Render, Heroku, Railway) for secure HTTPS cookies
+app.set("trust proxy", 1);
+
 const server =
   http.createServer(app);
 

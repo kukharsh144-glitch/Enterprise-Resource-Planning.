@@ -105,6 +105,13 @@ app.use(cookieParser());
 
 app.use(morgan("dev"));
 
+app.get("/", (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "ERP Backend API is running",
+  });
+});
+
 app.get(
   "/api/health",
   (req, res) => {

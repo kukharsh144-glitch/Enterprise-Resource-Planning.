@@ -197,7 +197,7 @@ const EmployeeProfile = () => {
         // 3. Fetch payroll history
         let payrollList = [];
         try {
-          const payrollRes = await api.get(`/payrolls?employeeId=${id}`);
+          const payrollRes = await api.get(`/payroll?employeeId=${id}`);
           payrollList = payrollRes.data?.data?.payrolls || payrollRes.data?.data || [];
         } catch (e) {
           console.warn('Failed to load payroll history:', e);

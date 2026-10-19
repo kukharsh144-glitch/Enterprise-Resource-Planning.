@@ -42,8 +42,12 @@ const activityLogSchema = new mongoose.Schema(
         // Payroll actions
         "create_payroll",
         "update_payroll",
+        "submit_payroll",
         "approve_payroll",
+        "reject_payroll",
         "process_payroll",
+        "mark_payroll_paid",
+        "pay_payroll",
         
         // Project actions
         "create_project",
@@ -130,10 +134,10 @@ const activityLogSchema = new mongoose.Schema(
       index: true,
     },
 
-    // ID of the entity that was modified
+    // ID of the entity that was modified (optional for batch/system-wide actions)
     entityId: {
       type: mongoose.Schema.Types.ObjectId,
-      required: true,
+      default: null,
       index: true,
     },
 
@@ -222,6 +226,14 @@ activityLogSchema.methods.getDescription = function () {
     apply_leave: `Applied for ${this.details?.leaveType} leave`,
     approve_leave: `Approved leave request`,
     reject_leave: `Rejected leave request`,
+    create_payroll: `Generated payroll for pay cycle`,
+    update_payroll: `Updated payroll record`,
+    submit_payroll: `Submitted payroll for approval`,
+    approve_payroll: `Approved payroll record`,
+    reject_payroll: `Rejected payroll record`,
+    process_payroll: `Processed payroll records`,
+    mark_payroll_paid: `Marked payroll as paid`,
+    pay_payroll: `Paid payroll record`,
   };
 
   return descriptions[this.action] || this.action;

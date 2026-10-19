@@ -35,6 +35,7 @@ import {
   UserPlus
 } from 'lucide-react';
 
+import { useAuth } from '../context/AuthContext';
 import { showGlassToast } from '../components/GlassToast';
 
 // Helper to calculate initials from a full name
@@ -46,6 +47,9 @@ const getInitials = (name) => {
 };
 
 const AIProjectDashboard = ({ projectId, projectName, onTasksUpdated }) => {
+  const { theme } = useAuth();
+  const isLight = theme === 'light';
+
   const [analysis, setAnalysis] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isApproving, setIsApproving] = useState(false);
@@ -500,18 +504,95 @@ const AIProjectDashboard = ({ projectId, projectName, onTasksUpdated }) => {
 
   const getPhaseMeta = (phaseName) => {
     switch ((phaseName || '').toLowerCase()) {
-      case 'planning': return { icon: Compass, color: '#818cf8', bg: 'rgba(129, 140, 248, 0.12)' };
-      case 'architecture': return { icon: Code, color: '#a855f7', bg: 'rgba(168, 85, 247, 0.12)' };
-      case 'database': return { icon: Database, color: '#10b981', bg: 'rgba(16, 185, 129, 0.12)' };
-      case 'backend': return { icon: Server, color: '#818cf8', bg: 'rgba(99, 102, 241, 0.12)' };
-      case 'frontend': return { icon: LayoutGrid, color: '#38bdf8', bg: 'rgba(56, 189, 248, 0.12)' };
-      case 'integration': return { icon: Layers, color: '#a855f7', bg: 'rgba(168, 85, 247, 0.12)' };
-      case 'security': return { icon: ShieldAlert, color: '#ef4444', bg: 'rgba(239, 68, 68, 0.12)' };
-      case 'testing': return { icon: CheckSquare, color: '#10b981', bg: 'rgba(16, 185, 129, 0.12)' };
-      case 'devops': return { icon: Cpu, color: '#f97316', bg: 'rgba(249, 115, 22, 0.12)' };
-      case 'deployment': return { icon: Rocket, color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.12)' };
-      case 'monitoring': return { icon: Activity, color: '#06b6d4', bg: 'rgba(6, 182, 212, 0.12)' };
-      default: return { icon: Briefcase, color: '#818cf8', bg: 'rgba(129, 140, 248, 0.12)' };
+      case 'planning': return { 
+        icon: Compass, 
+        color: isLight ? '#4338ca' : '#818cf8', 
+        bg: isLight ? '#eef2ff' : 'rgba(129, 140, 248, 0.12)' 
+      };
+      case 'architecture': return { 
+        icon: Code, 
+        color: isLight ? '#6d28d9' : '#a855f7', 
+        bg: isLight ? '#f5f3ff' : 'rgba(168, 85, 247, 0.12)' 
+      };
+      case 'database': return { 
+        icon: Database, 
+        color: isLight ? '#047857' : '#10b981', 
+        bg: isLight ? '#ecfdf5' : 'rgba(16, 185, 129, 0.12)' 
+      };
+      case 'backend': return { 
+        icon: Server, 
+        color: isLight ? '#4338ca' : '#818cf8', 
+        bg: isLight ? '#eef2ff' : 'rgba(99, 102, 241, 0.12)' 
+      };
+      case 'frontend': return { 
+        icon: LayoutGrid, 
+        color: isLight ? '#0284c7' : '#38bdf8', 
+        bg: isLight ? '#f0f9ff' : 'rgba(56, 189, 248, 0.12)' 
+      };
+      case 'integration': return { 
+        icon: Layers, 
+        color: isLight ? '#7c2d12' : '#a855f7', 
+        bg: isLight ? '#f5f3ff' : 'rgba(168, 85, 247, 0.12)' 
+      };
+      case 'security': return { 
+        icon: ShieldAlert, 
+        color: isLight ? '#b91c1c' : '#ef4444', 
+        bg: isLight ? '#fef2f2' : 'rgba(239, 68, 68, 0.12)' 
+      };
+      case 'testing': return { 
+        icon: CheckSquare, 
+        color: isLight ? '#047857' : '#10b981', 
+        bg: isLight ? '#ecfdf5' : 'rgba(16, 185, 129, 0.12)' 
+      };
+      case 'devops': return { 
+        icon: Cpu, 
+        color: isLight ? '#c2410c' : '#f97316', 
+        bg: isLight ? '#fff7ed' : 'rgba(249, 115, 22, 0.12)' 
+      };
+      case 'deployment': return { 
+        icon: Rocket, 
+        color: isLight ? '#b45309' : '#f59e0b', 
+        bg: isLight ? '#fffbeb' : 'rgba(245, 158, 11, 0.12)' 
+      };
+      case 'monitoring': return { 
+        icon: Activity, 
+        color: isLight ? '#0e7490' : '#06b6d4', 
+        bg: isLight ? '#ecfeff' : 'rgba(6, 182, 212, 0.12)' 
+      };
+      default: return { 
+        icon: Briefcase, 
+        color: isLight ? '#4338ca' : '#818cf8', 
+        bg: isLight ? '#eef2ff' : 'rgba(129, 140, 248, 0.12)' 
+      };
+    }
+  };
+
+  const getPriorityStyle = (priority) => {
+    switch ((priority || '').toLowerCase()) {
+      case 'critical':
+        return {
+          color: isLight ? '#b91c1c' : '#f87171',
+          bg: isLight ? '#fef2f2' : 'rgba(239, 68, 68, 0.15)',
+          border: isLight ? '1px solid #fecaca' : '1px solid rgba(239, 68, 68, 0.35)'
+        };
+      case 'high':
+        return {
+          color: isLight ? '#c2410c' : '#fb923c',
+          bg: isLight ? '#fff7ed' : 'rgba(249, 115, 22, 0.15)',
+          border: isLight ? '1px solid #fed7aa' : '1px solid rgba(249, 115, 22, 0.35)'
+        };
+      case 'medium':
+        return {
+          color: isLight ? '#b45309' : '#fbbf24',
+          bg: isLight ? '#fffbeb' : 'rgba(245, 158, 11, 0.15)',
+          border: isLight ? '1px solid #fde68a' : '1px solid rgba(245, 158, 11, 0.35)'
+        };
+      default:
+        return {
+          color: isLight ? '#0284c7' : '#38bdf8',
+          bg: isLight ? '#f0f9ff' : 'rgba(56, 189, 248, 0.15)',
+          border: isLight ? '1px solid #bae6fd' : '1px solid rgba(56, 189, 248, 0.35)'
+        };
     }
   };
 
@@ -591,8 +672,11 @@ const AIProjectDashboard = ({ projectId, projectName, onTasksUpdated }) => {
             alignItems: 'center', 
             padding: '14px 20px',
             cursor: 'pointer',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-            background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.04) 0%, rgba(15, 23, 42, 0.6) 100%)',
+            border: isLight ? '1px solid #fde68a' : '1px solid rgba(255, 255, 255, 0.08)',
+            background: isLight 
+              ? 'linear-gradient(135deg, #fffdf5 0%, #ffffff 100%)' 
+              : 'linear-gradient(135deg, rgba(245, 158, 11, 0.04) 0%, rgba(15, 23, 42, 0.6) 100%)',
+            boxShadow: isLight ? '0 2px 10px rgba(245, 158, 11, 0.08)' : '0 4px 18px rgba(0, 0, 0, 0.25)',
             transition: 'all 0.25s ease'
           }}
           title="Click to unwrap Project Overview & Architectural Blueprint"
@@ -602,19 +686,19 @@ const AIProjectDashboard = ({ projectId, projectName, onTasksUpdated }) => {
               width: '34px',
               height: '34px',
               borderRadius: '9px',
-              backgroundColor: 'rgba(245, 158, 11, 0.15)',
-              border: '1px solid rgba(245, 158, 11, 0.3)',
+              backgroundColor: isLight ? '#fef3c7' : 'rgba(245, 158, 11, 0.15)',
+              border: isLight ? '1px solid #fde68a' : '1px solid rgba(245, 158, 11, 0.3)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#f59e0b',
+              color: isLight ? '#b45309' : '#f59e0b',
               flexShrink: 0
             }}>
               <Compass size={18} />
             </div>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                <h3 style={{ fontSize: '15px', fontWeight: 800, margin: 0, color: '#f8fafc' }}>
+                <h3 style={{ fontSize: '15px', fontWeight: 800, margin: 0, color: isLight ? '#0f172a' : '#f8fafc' }}>
                   Project Overview & Architectural Blueprint
                 </h3>
                 {analysis.projectOverview?.complexityLevel && (
@@ -623,9 +707,9 @@ const AIProjectDashboard = ({ projectId, projectName, onTasksUpdated }) => {
                     fontWeight: 700,
                     padding: '2px 7px',
                     borderRadius: '4px',
-                    background: 'rgba(245, 158, 11, 0.15)',
-                    color: '#f59e0b',
-                    border: '1px solid rgba(245, 158, 11, 0.25)'
+                    background: isLight ? '#fef3c7' : 'rgba(245, 158, 11, 0.15)',
+                    color: isLight ? '#b45309' : '#f59e0b',
+                    border: isLight ? '1px solid #fde68a' : '1px solid rgba(245, 158, 11, 0.25)'
                   }}>
                     {analysis.projectOverview.complexityLevel} Complexity
                   </span>
@@ -635,14 +719,14 @@ const AIProjectDashboard = ({ projectId, projectName, onTasksUpdated }) => {
                   fontWeight: 700,
                   padding: '2px 7px',
                   borderRadius: '4px',
-                  background: 'rgba(255, 255, 255, 0.05)',
-                  color: '#94a3b8',
-                  border: '1px solid rgba(255, 255, 255, 0.08)'
+                  background: isLight ? '#f1f5f9' : 'rgba(255, 255, 255, 0.05)',
+                  color: isLight ? '#475569' : '#94a3b8',
+                  border: isLight ? '1px solid #e2e8f0' : '1px solid rgba(255, 255, 255, 0.08)'
                 }}>
                   6 Modules Wrapped
                 </span>
               </div>
-              <p style={{ fontSize: '11.5px', color: 'var(--text-muted)', margin: '2px 0 0' }}>
+              <p style={{ fontSize: '11.5px', color: isLight ? '#475569' : 'var(--text-muted)', margin: '2px 0 0' }}>
                 Strategic architecture, technology stack, modules topology, risk audits, and organization skills
               </p>
             </div>
@@ -657,18 +741,19 @@ const AIProjectDashboard = ({ projectId, projectName, onTasksUpdated }) => {
               }}
               className="sm-card-interactive"
               style={{
-                background: 'rgba(245, 158, 11, 0.12)',
-                border: '1px solid rgba(245, 158, 11, 0.3)',
+                background: isLight ? '#fef3c7' : 'rgba(245, 158, 11, 0.12)',
+                border: isLight ? '1px solid #fde68a' : '1px solid rgba(245, 158, 11, 0.3)',
                 borderRadius: '6px',
                 padding: '6px 14px',
-                color: '#f59e0b',
+                color: isLight ? '#b45309' : '#f59e0b',
                 fontSize: '11px',
                 fontWeight: 700,
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '6px',
-                transition: 'all 0.2s'
+                transition: 'all 0.2s',
+                boxShadow: isLight ? '0 1px 3px rgba(180, 83, 9, 0.08)' : 'none'
               }}
             >
               <ChevronDown size={14} />
@@ -677,26 +762,34 @@ const AIProjectDashboard = ({ projectId, projectName, onTasksUpdated }) => {
           </div>
         </div>
       ) : (
-        <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '20px', padding: '20px 22px' }}>
+        <div className="glass-panel" style={{ 
+          display: 'flex', 
+          flexDirection: 'column', 
+          gap: '20px', 
+          padding: '20px 22px',
+          background: isLight ? '#ffffff' : 'var(--bg-card)',
+          border: isLight ? '1px solid #e2e8f0' : '1px solid var(--border-default)',
+          boxShadow: isLight ? '0 1px 4px rgba(0, 0, 0, 0.04)' : 'none'
+        }}>
           {/* Overview Master Header with Wrap / Unwrap All Control */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', borderBottom: '1px solid var(--border-color)', paddingBottom: '14px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', borderBottom: isLight ? '1px solid #f1f5f9' : '1px solid var(--border-color)', paddingBottom: '14px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <div style={{
                 width: '34px',
                 height: '34px',
                 borderRadius: '9px',
-                backgroundColor: 'rgba(245, 158, 11, 0.15)',
-                border: '1px solid rgba(245, 158, 11, 0.3)',
+                backgroundColor: isLight ? '#fef3c7' : 'rgba(245, 158, 11, 0.15)',
+                border: isLight ? '1px solid #fde68a' : '1px solid rgba(245, 158, 11, 0.3)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: '#f59e0b'
+                color: isLight ? '#b45309' : '#f59e0b'
               }}>
                 <Compass size={18} />
               </div>
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <h3 style={{ fontSize: '15.5px', fontWeight: 800, margin: 0, color: '#f8fafc' }}>
+                  <h3 style={{ fontSize: '15.5px', fontWeight: 800, margin: 0, color: isLight ? '#0f172a' : '#f8fafc' }}>
                     Project Overview & Architectural Blueprint
                   </h3>
                   {analysis.projectOverview?.complexityLevel && (
@@ -705,15 +798,15 @@ const AIProjectDashboard = ({ projectId, projectName, onTasksUpdated }) => {
                       fontWeight: 700,
                       padding: '2px 7px',
                       borderRadius: '4px',
-                      background: 'rgba(245, 158, 11, 0.15)',
-                      color: '#f59e0b',
-                      border: '1px solid rgba(245, 158, 11, 0.25)'
+                      background: isLight ? '#fef3c7' : 'rgba(245, 158, 11, 0.15)',
+                      color: isLight ? '#b45309' : '#f59e0b',
+                      border: isLight ? '1px solid #fde68a' : '1px solid rgba(245, 158, 11, 0.25)'
                     }}>
                       {analysis.projectOverview.complexityLevel} Complexity
                     </span>
                   )}
                 </div>
-                <p style={{ fontSize: '11.5px', color: 'var(--text-muted)', margin: '2px 0 0' }}>
+                <p style={{ fontSize: '11.5px', color: isLight ? '#475569' : 'var(--text-muted)', margin: '2px 0 0' }}>
                   Strategic architecture, technology stack, modules topology, risk audits, and organization skills
                 </p>
               </div>
@@ -726,13 +819,13 @@ const AIProjectDashboard = ({ projectId, projectName, onTasksUpdated }) => {
                 onClick={toggleAllOverviewBoxes}
                 className="sm-card-interactive"
                 style={{
-                  background: 'rgba(255, 255, 255, 0.04)',
-                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  background: isLight ? '#f1f5f9' : 'rgba(255, 255, 255, 0.04)',
+                  border: isLight ? '1px solid #cbd5e1' : '1px solid rgba(255, 255, 255, 0.08)',
                   borderRadius: '6px',
                   padding: '6px 12px',
-                  color: '#94a3b8',
+                  color: isLight ? '#334155' : '#94a3b8',
                   fontSize: '11px',
-                  fontWeight: 600,
+                  fontWeight: 650,
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
@@ -759,11 +852,11 @@ const AIProjectDashboard = ({ projectId, projectName, onTasksUpdated }) => {
                 onClick={() => setIsOverviewSectionWrapped(true)}
                 className="sm-card-interactive"
                 style={{
-                  background: 'rgba(245, 158, 11, 0.08)',
-                  border: '1px solid rgba(245, 158, 11, 0.2)',
+                  background: isLight ? '#fef3c7' : 'rgba(245, 158, 11, 0.08)',
+                  border: isLight ? '1px solid #fde68a' : '1px solid rgba(245, 158, 11, 0.2)',
                   borderRadius: '6px',
                   padding: '6px 12px',
-                  color: '#f59e0b',
+                  color: isLight ? '#b45309' : '#f59e0b',
                   fontSize: '11px',
                   fontWeight: 650,
                   cursor: 'pointer',
@@ -788,8 +881,9 @@ const AIProjectDashboard = ({ projectId, projectName, onTasksUpdated }) => {
             
             {/* BOX 1: PROJECT OVERVIEW ANALYSIS */}
             <div style={{
-              background: 'var(--bg-card)',
-              border: '1px solid var(--border-default)',
+              background: isLight ? '#ffffff' : 'var(--bg-card)',
+              border: isLight ? '1px solid #e2e8f0' : '1px solid var(--border-default)',
+              boxShadow: isLight ? '0 1px 4px rgba(0, 0, 0, 0.04)' : 'none',
               borderRadius: '10px',
               padding: wrappedBoxes.overview ? '12px 16px' : '16px 18px',
               transition: 'all 0.25s ease',
@@ -807,12 +901,12 @@ const AIProjectDashboard = ({ projectId, projectName, onTasksUpdated }) => {
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <Compass size={17} style={{ color: '#f59e0b' }} />
-                  <h4 style={{ fontSize: '14px', fontWeight: 750, margin: 0, color: '#f8fafc' }}>
+                  <Compass size={17} style={{ color: isLight ? '#b45309' : '#f59e0b' }} />
+                  <h4 style={{ fontSize: '14px', fontWeight: 750, margin: 0, color: isLight ? '#0f172a' : '#f8fafc' }}>
                     Project Overview Analysis
                   </h4>
                   {wrappedBoxes.overview && (
-                    <span className="box-wrapped-pill">
+                    <span className="box-wrapped-pill" style={{ color: isLight ? '#475569' : '#94a3b8', border: isLight ? '1px solid #e2e8f0' : '1px solid rgba(255,255,255,0.08)' }}>
                       {analysis.projectOverview?.architectureStyle || 'Microservices'}
                     </span>
                   )}
@@ -822,9 +916,9 @@ const AIProjectDashboard = ({ projectId, projectName, onTasksUpdated }) => {
                   <span style={{
                     fontSize: '10px',
                     fontWeight: 700,
-                    color: '#a5b4fc',
-                    background: 'rgba(99, 102, 241, 0.15)',
-                    border: '1px solid rgba(99, 102, 241, 0.3)',
+                    color: isLight ? '#4338ca' : '#a5b4fc',
+                    background: isLight ? '#eef2ff' : 'rgba(99, 102, 241, 0.15)',
+                    border: isLight ? '1px solid #c7d2fe' : '1px solid rgba(99, 102, 241, 0.3)',
                     padding: '2px 8px',
                     borderRadius: '6px'
                   }}>
@@ -845,30 +939,30 @@ const AIProjectDashboard = ({ projectId, projectName, onTasksUpdated }) => {
               </div>
 
               <div className={`box-collapsible-wrapper ${wrappedBoxes.overview ? 'wrapped' : 'unwrapped'}`}>
-                <div style={{ display: 'grid', gridTemplateColumns: '130px 1fr', gap: '12px', fontSize: '12.5px', lineHeight: 1.5, marginTop: '16px', borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: '14px' }}>
-                  <span style={{ color: 'var(--text-muted)', fontWeight: 650 }}>Architecture:</span>
-                  <span style={{ color: '#a5b4fc', fontWeight: 600 }}>{analysis.projectOverview?.architectureStyle || 'Modular Microservices Architecture'}</span>
+                <div style={{ display: 'grid', gridTemplateColumns: '130px 1fr', gap: '12px', fontSize: '12.5px', lineHeight: 1.5, marginTop: '16px', borderTop: isLight ? '1px solid #f1f5f9' : '1px solid rgba(255, 255, 255, 0.05)', paddingTop: '14px' }}>
+                  <span style={{ color: isLight ? '#475569' : 'var(--text-muted)', fontWeight: 650 }}>Architecture:</span>
+                  <span style={{ color: isLight ? '#4338ca' : '#a5b4fc', fontWeight: 600 }}>{analysis.projectOverview?.architectureStyle || 'Modular Microservices Architecture'}</span>
 
-                  <span style={{ color: 'var(--text-muted)', fontWeight: 650 }}>Target Cloud:</span>
-                  <span style={{ color: 'var(--text-main)' }}>{analysis.projectOverview?.targetDeployment || 'Multi-Region High-Availability Cloud'}</span>
+                  <span style={{ color: isLight ? '#475569' : 'var(--text-muted)', fontWeight: 650 }}>Target Cloud:</span>
+                  <span style={{ color: isLight ? '#0f172a' : 'var(--text-main)' }}>{analysis.projectOverview?.targetDeployment || 'Multi-Region High-Availability Cloud'}</span>
 
-                  <span style={{ color: 'var(--text-muted)', fontWeight: 650 }}>Primary Objective:</span>
-                  <span style={{ color: 'var(--text-main)' }}>{analysis.projectOverview?.mainObjective}</span>
+                  <span style={{ color: isLight ? '#475569' : 'var(--text-muted)', fontWeight: 650 }}>Primary Objective:</span>
+                  <span style={{ color: isLight ? '#0f172a' : 'var(--text-main)' }}>{analysis.projectOverview?.mainObjective}</span>
 
-                  <span style={{ color: 'var(--text-muted)', fontWeight: 650 }}>Scope Summary:</span>
-                  <span style={{ color: 'var(--text-main)' }}>{analysis.projectOverview?.estimatedProjectScope}</span>
+                  <span style={{ color: isLight ? '#475569' : 'var(--text-muted)', fontWeight: 650 }}>Scope Summary:</span>
+                  <span style={{ color: isLight ? '#0f172a' : 'var(--text-main)' }}>{analysis.projectOverview?.estimatedProjectScope}</span>
 
                   {analysis.projectOverview?.complianceStandards && analysis.projectOverview.complianceStandards.length > 0 && (
                     <>
-                      <span style={{ color: 'var(--text-muted)', fontWeight: 650, marginTop: '2px' }}>Compliance Standards:</span>
+                      <span style={{ color: isLight ? '#475569' : 'var(--text-muted)', fontWeight: 650, marginTop: '2px' }}>Compliance Standards:</span>
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                         {analysis.projectOverview.complianceStandards.map((std, i) => (
                           <span key={i} style={{
                             fontSize: '10.5px',
                             fontWeight: 650,
-                            background: 'rgba(16, 185, 129, 0.1)',
-                            color: '#10b981',
-                            border: '1px solid rgba(16, 185, 129, 0.25)',
+                            background: isLight ? '#ecfdf5' : 'rgba(16, 185, 129, 0.1)',
+                            color: isLight ? '#047857' : '#10b981',
+                            border: isLight ? '1px solid #a7f3d0' : '1px solid rgba(16, 185, 129, 0.25)',
                             padding: '2px 7px',
                             borderRadius: '4px'
                           }}>
@@ -881,10 +975,10 @@ const AIProjectDashboard = ({ projectId, projectName, onTasksUpdated }) => {
 
                   {analysis.projectOverview?.keyMilestones && analysis.projectOverview.keyMilestones.length > 0 && (
                     <>
-                      <span style={{ color: 'var(--text-muted)', fontWeight: 650, marginTop: '4px' }}>Key Milestones:</span>
+                      <span style={{ color: isLight ? '#475569' : 'var(--text-muted)', fontWeight: 650, marginTop: '4px' }}>Key Milestones:</span>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                         {analysis.projectOverview.keyMilestones.map((ms, i) => (
-                          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11.5px', color: '#cbd5e1' }}>
+                          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11.5px', color: isLight ? '#334155' : '#cbd5e1' }}>
                             <div style={{ width: '5px', height: '5px', borderRadius: '50%', backgroundColor: '#f59e0b' }} />
                             <span>{ms}</span>
                           </div>
@@ -899,9 +993,8 @@ const AIProjectDashboard = ({ projectId, projectName, onTasksUpdated }) => {
             {/* BOX 2: MISSING REQUIREMENTS DETECTED */}
             {analysis.missingRequirements && analysis.missingRequirements.length > 0 && (
               <div style={{
-                borderColor: 'rgba(239, 68, 68, 0.3)',
-                backgroundColor: 'rgba(239, 68, 68, 0.04)',
-                border: '1px solid rgba(239, 68, 68, 0.25)',
+                backgroundColor: isLight ? '#fff5f5' : 'rgba(239, 68, 68, 0.04)',
+                border: isLight ? '1px solid #fecaca' : '1px solid rgba(239, 68, 68, 0.25)',
                 borderRadius: '10px',
                 padding: wrappedBoxes.missingReqs ? '12px 16px' : '16px 18px',
                 transition: 'all 0.25s ease',
@@ -919,12 +1012,12 @@ const AIProjectDashboard = ({ projectId, projectName, onTasksUpdated }) => {
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <AlertTriangle size={16} style={{ color: '#ef4444' }} />
-                    <h4 style={{ fontSize: '13.5px', fontWeight: 750, color: '#ef4444', margin: 0 }}>
+                    <AlertTriangle size={16} style={{ color: isLight ? '#dc2626' : '#ef4444' }} />
+                    <h4 style={{ fontSize: '13.5px', fontWeight: 750, color: isLight ? '#b91c1c' : '#ef4444', margin: 0 }}>
                       Missing Requirements Detected
                     </h4>
                     {wrappedBoxes.missingReqs && (
-                      <span className="box-wrapped-pill" style={{ color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.25)' }}>
+                      <span className="box-wrapped-pill" style={{ color: isLight ? '#b91c1c' : '#ef4444', borderColor: isLight ? '#fca5a5' : 'rgba(239, 68, 68, 0.25)' }}>
                         {analysis.missingRequirements.length} Detected
                       </span>
                     )}
@@ -934,8 +1027,8 @@ const AIProjectDashboard = ({ projectId, projectName, onTasksUpdated }) => {
                     <span style={{
                       fontSize: '10px',
                       fontWeight: 700,
-                      color: '#ef4444',
-                      background: 'rgba(239, 68, 68, 0.15)',
+                      color: isLight ? '#b91c1c' : '#ef4444',
+                      background: isLight ? '#fee2e2' : 'rgba(239, 68, 68, 0.15)',
                       padding: '2px 7px',
                       borderRadius: '4px'
                     }}>
@@ -956,7 +1049,7 @@ const AIProjectDashboard = ({ projectId, projectName, onTasksUpdated }) => {
                 </div>
 
                 <div className={`box-collapsible-wrapper ${wrappedBoxes.missingReqs ? 'wrapped' : 'unwrapped'}`}>
-                  <ul style={{ paddingLeft: '20px', margin: '14px 0 0 0', fontSize: '12px', color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', gap: '6px', borderTop: '1px solid rgba(239, 68, 68, 0.15)', paddingTop: '12px' }}>
+                  <ul style={{ paddingLeft: '20px', margin: '14px 0 0 0', fontSize: '12px', color: isLight ? '#475569' : 'var(--text-muted)', display: 'flex', flexDirection: 'column', gap: '6px', borderTop: isLight ? '1px solid #fee2e2' : '1px solid rgba(239, 68, 68, 0.15)', paddingTop: '12px' }}>
                     {analysis.missingRequirements.map((req, i) => (
                       <li key={i}>{req}</li>
                     ))}
@@ -967,8 +1060,9 @@ const AIProjectDashboard = ({ projectId, projectName, onTasksUpdated }) => {
 
             {/* BOX 3: SECURITY & DELIVERY RISK AUDITS */}
             <div style={{
-              background: 'var(--bg-card)',
-              border: '1px solid var(--border-default)',
+              background: isLight ? '#ffffff' : 'var(--bg-card)',
+              border: isLight ? '1px solid #e2e8f0' : '1px solid var(--border-default)',
+              boxShadow: isLight ? '0 1px 4px rgba(0, 0, 0, 0.04)' : 'none',
               borderRadius: '10px',
               padding: wrappedBoxes.securityRisks ? '12px 16px' : '16px 18px',
               transition: 'all 0.25s ease',
@@ -986,12 +1080,12 @@ const AIProjectDashboard = ({ projectId, projectName, onTasksUpdated }) => {
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <ShieldAlert size={16} style={{ color: '#ef4444' }} />
-                  <h4 style={{ fontSize: '14px', fontWeight: 750, margin: 0, color: '#f8fafc' }}>
+                  <ShieldAlert size={16} style={{ color: isLight ? '#dc2626' : '#ef4444' }} />
+                  <h4 style={{ fontSize: '14px', fontWeight: 750, margin: 0, color: isLight ? '#0f172a' : '#f8fafc' }}>
                     Security & Delivery Risk Audits
                   </h4>
                   {wrappedBoxes.securityRisks && (
-                    <span className="box-wrapped-pill">
+                    <span className="box-wrapped-pill" style={{ color: isLight ? '#475569' : '#94a3b8', border: isLight ? '1px solid #e2e8f0' : '1px solid rgba(255,255,255,0.08)' }}>
                       {analysis.risks?.length || 0} Risk Audits
                     </span>
                   )}
@@ -1001,9 +1095,9 @@ const AIProjectDashboard = ({ projectId, projectName, onTasksUpdated }) => {
                   <span style={{
                     fontSize: '10px',
                     fontWeight: 700,
-                    color: '#ef4444',
-                    background: 'rgba(239, 68, 68, 0.15)',
-                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                    color: isLight ? '#b91c1c' : '#ef4444',
+                    background: isLight ? '#fee2e2' : 'rgba(239, 68, 68, 0.15)',
+                    border: isLight ? '1px solid #fecaca' : '1px solid rgba(239, 68, 68, 0.3)',
                     padding: '2px 8px',
                     borderRadius: '6px'
                   }}>
@@ -1024,22 +1118,22 @@ const AIProjectDashboard = ({ projectId, projectName, onTasksUpdated }) => {
               </div>
 
               <div className={`box-collapsible-wrapper ${wrappedBoxes.securityRisks ? 'wrapped' : 'unwrapped'}`}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '16px', borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: '14px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '16px', borderTop: isLight ? '1px solid #f1f5f9' : '1px solid rgba(255, 255, 255, 0.05)', paddingTop: '14px' }}>
                   {analysis.risks && analysis.risks.map((r, i) => (
-                    <div key={i} style={{ borderBottom: i < analysis.risks.length - 1 ? '1px solid rgba(255, 255, 255, 0.06)' : 'none', paddingBottom: '10px' }}>
+                    <div key={i} style={{ borderBottom: i < analysis.risks.length - 1 ? (isLight ? '1px solid #f1f5f9' : '1px solid rgba(255, 255, 255, 0.06)') : 'none', paddingBottom: '10px' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ fontWeight: 700, fontSize: '13px', color: 'var(--text-main)' }}>{r.risk}</span>
+                        <span style={{ fontWeight: 700, fontSize: '13px', color: isLight ? '#0f172a' : 'var(--text-main)' }}>{r.risk}</span>
                         <span style={{ 
                           fontSize: '9.5px', 
                           fontWeight: 700, 
-                          backgroundColor: r.severity === 'High' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(245, 158, 11, 0.15)',
-                          color: r.severity === 'High' ? '#ef4444' : '#f59e0b',
+                          backgroundColor: r.severity === 'High' ? (isLight ? '#fee2e2' : 'rgba(239, 68, 68, 0.15)') : (isLight ? '#fef3c7' : 'rgba(245, 158, 11, 0.15)'),
+                          color: r.severity === 'High' ? (isLight ? '#b91c1c' : '#ef4444') : (isLight ? '#b45309' : '#f59e0b'),
                           padding: '2px 8px',
                           borderRadius: '4px'
                         }}>{r.severity} Risk</span>
                       </div>
-                      <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px', lineHeight: 1.4 }}>{r.reason}</p>
-                      <p style={{ fontSize: '11.5px', color: 'var(--color-primary-light)', marginTop: '4px' }}>
+                      <p style={{ fontSize: '12px', color: isLight ? '#475569' : 'var(--text-muted)', marginTop: '4px', lineHeight: 1.4 }}>{r.reason}</p>
+                      <p style={{ fontSize: '11.5px', color: isLight ? '#4338ca' : 'var(--color-primary-light)', marginTop: '4px' }}>
                         <strong>Mitigation Solution:</strong> {r.solution}
                       </p>
                     </div>
@@ -1055,8 +1149,9 @@ const AIProjectDashboard = ({ projectId, projectName, onTasksUpdated }) => {
             
             {/* BOX 4: TECHNOLOGY STACK */}
             <div style={{
-              background: 'var(--bg-card)',
-              border: '1px solid var(--border-default)',
+              background: isLight ? '#ffffff' : 'var(--bg-card)',
+              border: isLight ? '1px solid #e2e8f0' : '1px solid var(--border-default)',
+              boxShadow: isLight ? '0 1px 4px rgba(0, 0, 0, 0.04)' : 'none',
               borderRadius: '10px',
               padding: wrappedBoxes.techStack ? '12px 16px' : '16px 18px',
               transition: 'all 0.25s ease',
@@ -1074,12 +1169,12 @@ const AIProjectDashboard = ({ projectId, projectName, onTasksUpdated }) => {
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <Code size={16} style={{ color: '#818cf8' }} />
-                  <h4 style={{ fontSize: '14px', fontWeight: 750, margin: 0, color: '#f8fafc' }}>
+                  <Code size={16} style={{ color: isLight ? '#4338ca' : '#818cf8' }} />
+                  <h4 style={{ fontSize: '14px', fontWeight: 750, margin: 0, color: isLight ? '#0f172a' : '#f8fafc' }}>
                     Technology Stack
                   </h4>
                   {wrappedBoxes.techStack && (
-                    <span className="box-wrapped-pill">
+                    <span className="box-wrapped-pill" style={{ color: isLight ? '#475569' : '#94a3b8', border: isLight ? '1px solid #e2e8f0' : '1px solid rgba(255,255,255,0.08)' }}>
                       {filteredTechList?.length || analysis.technologies?.length || 0} Tools
                     </span>
                   )}
@@ -1099,9 +1194,15 @@ const AIProjectDashboard = ({ projectId, projectName, onTasksUpdated }) => {
                             fontWeight: 650,
                             borderRadius: '4px',
                             cursor: 'pointer',
-                            border: techFilter === cat ? '1px solid rgba(99, 102, 241, 0.5)' : '1px solid transparent',
-                            background: techFilter === cat ? 'rgba(99, 102, 241, 0.25)' : 'rgba(255, 255, 255, 0.03)',
-                            color: techFilter === cat ? '#a5b4fc' : '#64748b'
+                            border: techFilter === cat 
+                              ? (isLight ? '1px solid #818cf8' : '1px solid rgba(99, 102, 241, 0.5)') 
+                              : '1px solid transparent',
+                            background: techFilter === cat 
+                              ? (isLight ? '#eef2ff' : 'rgba(99, 102, 241, 0.25)') 
+                              : (isLight ? '#f1f5f9' : 'rgba(255, 255, 255, 0.03)'),
+                            color: techFilter === cat 
+                              ? (isLight ? '#4338ca' : '#a5b4fc') 
+                              : (isLight ? '#64748b' : '#64748b')
                           }}
                         >
                           {cat}
@@ -1124,13 +1225,13 @@ const AIProjectDashboard = ({ projectId, projectName, onTasksUpdated }) => {
               </div>
 
               <div className={`box-collapsible-wrapper ${wrappedBoxes.techStack ? 'wrapped' : 'unwrapped'}`}>
-                <div style={{ marginTop: '14px', borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: '12px' }}>
+                <div style={{ marginTop: '14px', borderTop: isLight ? '1px solid #f1f5f9' : '1px solid rgba(255, 255, 255, 0.05)', paddingTop: '12px' }}>
                   {filteredTechList ? (
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: '8px' }}>
                       {filteredTechList.map((tech, i) => (
                         <div key={i} style={{
-                          backgroundColor: 'rgba(15, 23, 42, 0.7)',
-                          border: '1px solid rgba(255, 255, 255, 0.07)',
+                          backgroundColor: isLight ? '#f8fafc' : 'rgba(15, 23, 42, 0.7)',
+                          border: isLight ? '1px solid #e2e8f0' : '1px solid rgba(255, 255, 255, 0.07)',
                           borderRadius: '6px',
                           padding: '8px 10px',
                           display: 'flex',
@@ -1139,15 +1240,15 @@ const AIProjectDashboard = ({ projectId, projectName, onTasksUpdated }) => {
                           position: 'relative'
                         }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <span style={{ fontSize: '11.5px', fontWeight: 700, color: tech.badgeColor || '#f8fafc' }}>
+                            <span style={{ fontSize: '11.5px', fontWeight: 700, color: isLight ? '#0f172a' : (tech.badgeColor || '#f8fafc') }}>
                               {tech.name}
                             </span>
                             {tech.version && (
-                              <span style={{ fontSize: '8.5px', color: '#64748b', fontWeight: 600 }}>{tech.version}</span>
+                              <span style={{ fontSize: '8.5px', color: isLight ? '#64748b' : '#64748b', fontWeight: 600 }}>{tech.version}</span>
                             )}
                           </div>
                           {tech.role && (
-                            <span style={{ fontSize: '9.5px', color: 'var(--text-muted)', lineHeight: 1.2 }}>{tech.role}</span>
+                            <span style={{ fontSize: '9.5px', color: isLight ? '#475569' : 'var(--text-muted)', lineHeight: 1.2 }}>{tech.role}</span>
                           )}
                         </div>
                       ))}
@@ -1157,9 +1258,9 @@ const AIProjectDashboard = ({ projectId, projectName, onTasksUpdated }) => {
                       {analysis.technologies && analysis.technologies.map((tech, i) => (
                         <span key={i} style={{
                           fontSize: '11px',
-                          backgroundColor: 'rgba(99, 102, 241, 0.1)',
-                          border: '1px solid rgba(99, 102, 241, 0.25)',
-                          color: '#a5b4fc',
+                          backgroundColor: isLight ? '#eef2ff' : 'rgba(99, 102, 241, 0.1)',
+                          border: isLight ? '1px solid #c7d2fe' : '1px solid rgba(99, 102, 241, 0.25)',
+                          color: isLight ? '#4338ca' : '#a5b4fc',
                           padding: '3px 9px',
                           borderRadius: '5px',
                           fontWeight: 600
@@ -1173,8 +1274,9 @@ const AIProjectDashboard = ({ projectId, projectName, onTasksUpdated }) => {
 
             {/* BOX 5: REQUIRED MODULES ARCHITECTURE */}
             <div style={{
-              background: 'var(--bg-card)',
-              border: '1px solid var(--border-default)',
+              background: isLight ? '#ffffff' : 'var(--bg-card)',
+              border: isLight ? '1px solid #e2e8f0' : '1px solid var(--border-default)',
+              boxShadow: isLight ? '0 1px 4px rgba(0, 0, 0, 0.04)' : 'none',
               borderRadius: '10px',
               padding: wrappedBoxes.modules ? '12px 16px' : '16px 18px',
               transition: 'all 0.25s ease',
@@ -1192,19 +1294,19 @@ const AIProjectDashboard = ({ projectId, projectName, onTasksUpdated }) => {
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <Layers3 size={16} style={{ color: '#10b981' }} />
-                  <h4 style={{ fontSize: '14px', fontWeight: 750, margin: 0, color: '#f8fafc' }}>
+                  <Layers3 size={16} style={{ color: isLight ? '#047857' : '#10b981' }} />
+                  <h4 style={{ fontSize: '14px', fontWeight: 750, margin: 0, color: isLight ? '#0f172a' : '#f8fafc' }}>
                     Required Modules Architecture
                   </h4>
                   {wrappedBoxes.modules && (
-                    <span className="box-wrapped-pill">
+                    <span className="box-wrapped-pill" style={{ color: isLight ? '#475569' : '#94a3b8', border: isLight ? '1px solid #e2e8f0' : '1px solid rgba(255,255,255,0.08)' }}>
                       {analysis.modulesDetail?.length || analysis.modules?.length || 0} Modules
                     </span>
                   )}
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ fontSize: '10.5px', color: '#10b981', fontWeight: 650 }}>
+                  <span style={{ fontSize: '10.5px', color: isLight ? '#047857' : '#10b981', fontWeight: 650 }}>
                     {analysis.modulesDetail?.length || analysis.modules?.length || 0} Modules
                   </span>
                   <button
@@ -1222,7 +1324,7 @@ const AIProjectDashboard = ({ projectId, projectName, onTasksUpdated }) => {
               </div>
 
               <div className={`box-collapsible-wrapper ${wrappedBoxes.modules ? 'wrapped' : 'unwrapped'}`}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '380px', overflowY: 'auto', marginTop: '14px', borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: '12px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '380px', overflowY: 'auto', marginTop: '14px', borderTop: isLight ? '1px solid #f1f5f9' : '1px solid rgba(255, 255, 255, 0.05)', paddingTop: '12px' }}>
                   {analysis.modulesDetail && analysis.modulesDetail.length > 0 ? (
                     analysis.modulesDetail.map((mod, i) => {
                       const isCrit = mod.status === 'Security Critical' || mod.status === 'Critical';
@@ -1230,8 +1332,8 @@ const AIProjectDashboard = ({ projectId, projectName, onTasksUpdated }) => {
 
                       return (
                         <div key={i} style={{
-                          backgroundColor: 'rgba(15, 23, 42, 0.6)',
-                          border: '1px solid rgba(255, 255, 255, 0.06)',
+                          backgroundColor: isLight ? '#f8fafc' : 'rgba(15, 23, 42, 0.6)',
+                          border: isLight ? '1px solid #e2e8f0' : '1px solid rgba(255, 255, 255, 0.06)',
                           borderRadius: '8px',
                           padding: '8px 10px',
                           display: 'flex',
@@ -1239,7 +1341,7 @@ const AIProjectDashboard = ({ projectId, projectName, onTasksUpdated }) => {
                           gap: '3px'
                         }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '6px' }}>
-                            <span style={{ fontSize: '11.5px', fontWeight: 650, color: 'var(--text-main)' }}>
+                            <span style={{ fontSize: '11.5px', fontWeight: 650, color: isLight ? '#0f172a' : 'var(--text-main)' }}>
                               {mod.name}
                             </span>
                             <span style={{
@@ -1247,15 +1349,19 @@ const AIProjectDashboard = ({ projectId, projectName, onTasksUpdated }) => {
                               fontWeight: 700,
                               padding: '1px 6px',
                               borderRadius: '4px',
-                              background: isCrit ? 'rgba(239, 68, 68, 0.15)' : (isCore ? 'rgba(99, 102, 241, 0.15)' : 'rgba(245, 158, 11, 0.15)'),
-                              color: isCrit ? '#ef4444' : (isCore ? '#a5b4fc' : '#f59e0b'),
+                              background: isCrit 
+                                ? (isLight ? '#fee2e2' : 'rgba(239, 68, 68, 0.15)') 
+                                : (isCore ? (isLight ? '#eef2ff' : 'rgba(99, 102, 241, 0.15)') : (isLight ? '#fef3c7' : 'rgba(245, 158, 11, 0.15)')),
+                              color: isCrit 
+                                ? (isLight ? '#b91c1c' : '#ef4444') 
+                                : (isCore ? (isLight ? '#4338ca' : '#a5b4fc') : (isLight ? '#b45309' : '#f59e0b')),
                               whiteSpace: 'nowrap'
                             }}>
                               {mod.status}
                             </span>
                           </div>
                           {mod.description && (
-                            <p style={{ fontSize: '10.5px', color: 'var(--text-muted)', margin: 0, lineHeight: 1.3 }}>
+                            <p style={{ fontSize: '10.5px', color: isLight ? '#475569' : 'var(--text-muted)', margin: 0, lineHeight: 1.3 }}>
                               {mod.description}
                             </p>
                           )}
@@ -1264,8 +1370,8 @@ const AIProjectDashboard = ({ projectId, projectName, onTasksUpdated }) => {
                     })
                   ) : (
                     analysis.modules && analysis.modules.map((mod, i) => (
-                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: 'var(--text-muted)' }}>
-                        <CheckCircle size={13} style={{ color: 'var(--color-success)' }} />
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: isLight ? '#475569' : 'var(--text-muted)' }}>
+                        <CheckCircle size={13} style={{ color: isLight ? '#047857' : 'var(--color-success)' }} />
                         <span>{mod}</span>
                       </div>
                     ))
@@ -1276,8 +1382,9 @@ const AIProjectDashboard = ({ projectId, projectName, onTasksUpdated }) => {
 
             {/* BOX 6: ORGANIZATION SKILL GAPS & READINESS */}
             <div style={{
-              background: 'var(--bg-card)',
-              border: '1px solid var(--border-default)',
+              background: isLight ? '#ffffff' : 'var(--bg-card)',
+              border: isLight ? '1px solid #e2e8f0' : '1px solid var(--border-default)',
+              boxShadow: isLight ? '0 1px 4px rgba(0, 0, 0, 0.04)' : 'none',
               borderRadius: '10px',
               padding: wrappedBoxes.skillGaps ? '12px 16px' : '16px 18px',
               transition: 'all 0.25s ease',
@@ -1295,19 +1402,19 @@ const AIProjectDashboard = ({ projectId, projectName, onTasksUpdated }) => {
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <Cpu size={16} style={{ color: '#f59e0b' }} />
-                  <h4 style={{ fontSize: '14px', fontWeight: 750, margin: 0, color: '#f8fafc' }}>
+                  <Cpu size={16} style={{ color: isLight ? '#b45309' : '#f59e0b' }} />
+                  <h4 style={{ fontSize: '14px', fontWeight: 750, margin: 0, color: isLight ? '#0f172a' : '#f8fafc' }}>
                     Organization Skill Gaps & Readiness
                   </h4>
                   {wrappedBoxes.skillGaps && (
-                    <span className="box-wrapped-pill">
+                    <span className="box-wrapped-pill" style={{ color: isLight ? '#475569' : '#94a3b8', border: isLight ? '1px solid #e2e8f0' : '1px solid rgba(255,255,255,0.08)' }}>
                       {skillCoverage}% Readiness
                     </span>
                   )}
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ fontSize: '10.5px', fontWeight: 700, color: skillCoverage >= 80 ? '#10b981' : '#f59e0b' }}>
+                  <span style={{ fontSize: '10.5px', fontWeight: 700, color: skillCoverage >= 80 ? (isLight ? '#047857' : '#10b981') : (isLight ? '#b45309' : '#f59e0b') }}>
                     {skillCoverage}% Readiness
                   </span>
                   <button
@@ -1325,9 +1432,9 @@ const AIProjectDashboard = ({ projectId, projectName, onTasksUpdated }) => {
               </div>
 
               <div className={`box-collapsible-wrapper ${wrappedBoxes.skillGaps ? 'wrapped' : 'unwrapped'}`}>
-                <div style={{ marginTop: '14px', borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: '12px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ marginTop: '14px', borderTop: isLight ? '1px solid #f1f5f9' : '1px solid rgba(255, 255, 255, 0.05)', paddingTop: '12px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   {/* Coverage Meter */}
-                  <div style={{ width: '100%', height: '5px', backgroundColor: 'rgba(255, 255, 255, 0.08)', borderRadius: '3px', overflow: 'hidden' }}>
+                  <div style={{ width: '100%', height: '5px', backgroundColor: isLight ? '#e2e8f0' : 'rgba(255, 255, 255, 0.08)', borderRadius: '3px', overflow: 'hidden' }}>
                     <div style={{
                       width: `${skillCoverage}%`,
                       height: '100%',
@@ -1351,7 +1458,7 @@ const AIProjectDashboard = ({ projectId, projectName, onTasksUpdated }) => {
                           gap: '3px'
                         }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <span style={{ fontWeight: 700, color: 'var(--text-main)' }}>
+                            <span style={{ fontWeight: 700, color: isLight ? '#0f172a' : 'var(--text-main)' }}>
                               {gap.requiredSkill}
                             </span>
                             <div style={{ display: 'flex', gap: '4px' }}>
@@ -1360,8 +1467,8 @@ const AIProjectDashboard = ({ projectId, projectName, onTasksUpdated }) => {
                                 fontWeight: 700,
                                 padding: '1px 5px',
                                 borderRadius: '3px',
-                                backgroundColor: isCrit ? 'rgba(239, 68, 68, 0.15)' : 'rgba(245, 158, 11, 0.15)',
-                                color: isCrit ? '#ef4444' : '#f59e0b'
+                                backgroundColor: isCrit ? (isLight ? '#fee2e2' : 'rgba(239, 68, 68, 0.15)') : (isLight ? '#fef3c7' : 'rgba(245, 158, 11, 0.15)'),
+                                color: isCrit ? (isLight ? '#b91c1c' : '#ef4444') : (isLight ? '#b45309' : '#f59e0b')
                               }}>
                                 {gap.severity || 'Medium'}
                               </span>
@@ -1371,15 +1478,15 @@ const AIProjectDashboard = ({ projectId, projectName, onTasksUpdated }) => {
                                   fontWeight: 700,
                                   padding: '1px 5px',
                                   borderRadius: '3px',
-                                  backgroundColor: 'rgba(99, 102, 241, 0.15)',
-                                  color: '#a5b4fc'
+                                  backgroundColor: isLight ? '#eef2ff' : 'rgba(99, 102, 241, 0.15)',
+                                  color: isLight ? '#4338ca' : '#a5b4fc'
                                 }}>
                                   {gap.actionType}
                                 </span>
                               )}
                             </div>
                           </div>
-                          <p style={{ fontSize: '10.5px', color: 'var(--text-muted)', margin: 0, lineHeight: 1.35 }}>
+                          <p style={{ fontSize: '10.5px', color: isLight ? '#475569' : 'var(--text-muted)', margin: 0, lineHeight: 1.35 }}>
                             {gap.recommendation}
                           </p>
                         </div>
@@ -1387,7 +1494,7 @@ const AIProjectDashboard = ({ projectId, projectName, onTasksUpdated }) => {
                     })}
 
                     {(!analysis.skillGaps || analysis.skillGaps.length === 0) && (
-                      <span style={{ fontSize: '12px', fontStyle: 'italic', color: 'var(--text-success)' }}>
+                      <span style={{ fontSize: '12px', fontStyle: 'italic', color: isLight ? '#047857' : 'var(--text-success)' }}>
                         All project skills are fully covered by existing active team member profiles.
                       </span>
                     )}
@@ -1404,10 +1511,10 @@ const AIProjectDashboard = ({ projectId, projectName, onTasksUpdated }) => {
 
       {/* AI TASK RECOMMENDATIONS (GROUPED BY LIFECYCLE PHASES) */}
       <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-color)', paddingBottom: '14px', flexWrap: 'wrap', gap: '12px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: isLight ? '1px solid #e2e8f0' : '1px solid var(--border-color)', paddingBottom: '14px', flexWrap: 'wrap', gap: '12px' }}>
           <div>
-            <h3 style={{ fontSize: '16px', fontWeight: 800, margin: 0 }}>AI Lifecycle Task Recommendations</h3>
-            <p style={{ fontSize: '12px', color: 'var(--text-muted)', margin: '2px 0 0' }}>
+            <h3 style={{ fontSize: '16px', fontWeight: 800, margin: 0, color: isLight ? '#0f172a' : 'var(--text-main)' }}>AI Lifecycle Task Recommendations</h3>
+            <p style={{ fontSize: '12px', color: isLight ? '#475569' : 'var(--text-muted)', margin: '2px 0 0' }}>
               Comprehensive deliverables categorized across {activePhases.length} development lifecycle phases.
             </p>
           </div>
@@ -1416,16 +1523,42 @@ const AIProjectDashboard = ({ projectId, projectName, onTasksUpdated }) => {
               className="btn btn-secondary sm-phase-distribute-btn" 
               onClick={handleAutoAssignAllPhases} 
               title="Automatically assign recommended employees across all phases"
-              style={{ color: '#38bdf8', borderColor: 'rgba(56, 189, 248, 0.35)', fontWeight: 650 }}
+              style={{
+                backgroundColor: isLight ? '#f0f9ff' : 'rgba(56, 189, 248, 0.1)',
+                borderColor: isLight ? '#bae6fd' : 'rgba(56, 189, 248, 0.35)',
+                color: isLight ? '#0284c7' : '#38bdf8',
+                fontWeight: 700,
+                boxShadow: isLight ? '0 1px 3px rgba(2, 132, 199, 0.08)' : 'none'
+              }}
             >
               <Sparkles size={14} />
               Auto-Assign All Phases
             </button>
-            <button className="btn btn-secondary" onClick={handleAddCustomTask} style={{ color: '#f59e0b', fontWeight: 650 }}>
+            <button 
+              className="btn btn-secondary" 
+              onClick={handleAddCustomTask} 
+              style={{
+                backgroundColor: isLight ? '#fffbeb' : 'rgba(245, 158, 11, 0.1)',
+                borderColor: isLight ? '#fde68a' : 'rgba(245, 158, 11, 0.3)',
+                color: isLight ? '#b45309' : '#f59e0b',
+                fontWeight: 700,
+                boxShadow: isLight ? '0 1px 3px rgba(180, 83, 9, 0.08)' : 'none'
+              }}
+            >
               <Plus size={14} />
               Add Custom Task
             </button>
-            <button className="btn btn-secondary" onClick={handleDiscard} style={{ color: 'var(--color-danger)', fontWeight: 650 }}>
+            <button 
+              className="btn btn-secondary" 
+              onClick={handleDiscard} 
+              style={{
+                backgroundColor: isLight ? '#fef2f2' : 'rgba(239, 68, 68, 0.1)',
+                borderColor: isLight ? '#fecaca' : 'rgba(239, 68, 68, 0.3)',
+                color: isLight ? '#dc2626' : 'var(--color-danger)',
+                fontWeight: 700,
+                boxShadow: isLight ? '0 1px 3px rgba(220, 38, 38, 0.08)' : 'none'
+              }}
+            >
               <X size={14} />
               Reject All
             </button>
@@ -1434,12 +1567,13 @@ const AIProjectDashboard = ({ projectId, projectName, onTasksUpdated }) => {
               onClick={handleApprove} 
               disabled={isApproving}
               style={{ 
-                backgroundColor: '#f59e0b', 
-                borderColor: '#f59e0b', 
-                color: '#111827', 
+                backgroundColor: '#4f46e5', 
+                borderColor: '#4338ca', 
+                color: '#ffffff', 
                 fontWeight: 750,
                 opacity: isApproving ? 0.7 : 1,
-                cursor: isApproving ? 'not-allowed' : 'pointer'
+                cursor: isApproving ? 'not-allowed' : 'pointer',
+                boxShadow: '0 4px 14px rgba(79, 70, 229, 0.35)'
               }}
             >
               <Check size={14} />
@@ -1469,31 +1603,32 @@ const AIProjectDashboard = ({ projectId, projectName, onTasksUpdated }) => {
                   alignItems: 'center',
                   flexWrap: 'wrap',
                   gap: '12px',
-                  padding: '10px 14px',
-                  backgroundColor: 'rgba(255, 255, 255, 0.02)',
+                  padding: '12px 16px',
+                  backgroundColor: isLight ? '#f8fafc' : 'rgba(255, 255, 255, 0.03)',
                   borderRadius: '10px',
-                  border: '1px solid rgba(255, 255, 255, 0.05)',
-                  boxShadow: '0 4px 18px rgba(0, 0, 0, 0.25)'
+                  border: isLight ? '1px solid #e2e8f0' : '1px solid rgba(255, 255, 255, 0.07)',
+                  boxShadow: isLight ? '0 1px 4px rgba(0, 0, 0, 0.04)' : '0 4px 18px rgba(0, 0, 0, 0.25)'
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                     <div style={{
-                      width: '30px',
-                      height: '30px',
+                      width: '32px',
+                      height: '32px',
                       borderRadius: '8px',
                       backgroundColor: meta.bg,
                       color: meta.color,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      boxShadow: `0 2px 10px ${meta.color}33`
+                      boxShadow: isLight ? `0 2px 6px ${meta.color}22` : `0 2px 10px ${meta.color}33`,
+                      border: isLight ? `1px solid ${meta.color}33` : 'none'
                     }}>
                       <PhaseIcon size={16} />
                     </div>
                     <div>
-                      <h4 style={{ fontSize: '13px', fontWeight: 750, color: meta.color, textTransform: 'uppercase', letterSpacing: '0.04em', margin: 0 }}>
+                      <h4 style={{ fontSize: '13.5px', fontWeight: 800, color: meta.color, textTransform: 'uppercase', letterSpacing: '0.04em', margin: 0 }}>
                         {phase} Phase
                       </h4>
-                      <span style={{ fontSize: '10.5px', color: 'var(--text-muted)' }}>
+                      <span style={{ fontSize: '11px', color: isLight ? '#64748b' : 'var(--text-muted)' }}>
                         {phaseTasks.length} Deliverables • {phaseHours} Total Hours
                       </span>
                     </div>
@@ -1503,7 +1638,7 @@ const AIProjectDashboard = ({ projectId, projectName, onTasksUpdated }) => {
                   <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                       <Users size={13} style={{ color: meta.color }} />
-                      <span style={{ fontSize: '11px', fontWeight: 650, color: '#cbd5e1' }}>
+                      <span style={{ fontSize: '11px', fontWeight: 700, color: isLight ? '#1e293b' : '#cbd5e1' }}>
                         Phase Team ({phaseTeam.length}):
                       </span>
                     </div>
@@ -1542,12 +1677,12 @@ const AIProjectDashboard = ({ projectId, projectName, onTasksUpdated }) => {
                       {phaseTeam.length === 0 && (
                         <span style={{ 
                           fontSize: '10.5px', 
-                          color: '#f87171', 
+                          color: isLight ? '#b91c1c' : '#f87171', 
                           fontWeight: 700,
                           padding: '2px 9px',
                           borderRadius: '12px',
-                          background: 'rgba(239, 68, 68, 0.14)',
-                          border: '1px solid rgba(239, 68, 68, 0.38)',
+                          background: isLight ? '#fef2f2' : 'rgba(239, 68, 68, 0.14)',
+                          border: isLight ? '1px solid #fecaca' : '1px solid rgba(239, 68, 68, 0.38)',
                           display: 'inline-flex',
                           alignItems: 'center',
                           gap: '4px'
@@ -1570,13 +1705,13 @@ const AIProjectDashboard = ({ projectId, projectName, onTasksUpdated }) => {
                       className="sm-phase-add-emp-select"
                       title="Add employee to this phase (can add multiple employees)"
                     >
-                      <option value="" disabled style={{ background: 'var(--input-bg)', color: 'var(--text-muted)' }}>
+                      <option value="" disabled style={{ background: isLight ? '#ffffff' : 'var(--input-bg)', color: 'var(--text-muted)' }}>
                         + Add Employee...
                       </option>
                       {employees
                         .filter(emp => !phaseTeam.includes(emp._id))
                         .map(emp => (
-                          <option key={emp._id} value={emp._id} style={{ background: 'var(--input-bg)', color: 'var(--text-primary)' }}>
+                          <option key={emp._id} value={emp._id} style={{ background: isLight ? '#ffffff' : 'var(--input-bg)', color: isLight ? '#0f172a' : 'var(--text-primary)' }}>
                             + {emp.user?.fullname || emp.designation} {emp.designation ? `(${emp.designation})` : ''}
                           </option>
                         ))}
@@ -1589,6 +1724,11 @@ const AIProjectDashboard = ({ projectId, projectName, onTasksUpdated }) => {
                         className="sm-phase-distribute-btn"
                         onClick={() => distributePhaseTasks(phase, phaseTeam)}
                         title="Evenly distribute deliverables across all assigned phase team members"
+                        style={{
+                          backgroundColor: isLight ? '#fffbeb' : 'rgba(245, 158, 11, 0.1)',
+                          borderColor: isLight ? '#fde68a' : 'rgba(245, 158, 11, 0.3)',
+                          color: isLight ? '#b45309' : '#f59e0b'
+                        }}
                       >
                         <Sparkles size={12} />
                         Distribute Tasks
@@ -1603,19 +1743,24 @@ const AIProjectDashboard = ({ projectId, projectName, onTasksUpdated }) => {
                     const taskIdx = (analysis.recommendedTasks || []).findIndex(t => t.title === task.title);
                     const isEditing = editingTaskIdx === taskIdx;
                     const rec = (analysis.teamRecommendations || []).find(r => r.taskTitle === task.title);
+                    const pStyle = getPriorityStyle(task.priority);
 
                     return (
                       <div 
                         key={task.title} 
+                        className="sm-ai-task-card"
                         style={{
-                          backgroundColor: 'rgba(15, 23, 42, 0.55)',
-                          border: '1px solid var(--border-color)',
-                          borderRadius: 'var(--radius-md)',
-                          padding: '16px',
+                          backgroundColor: isLight ? '#ffffff' : 'rgba(15, 23, 42, 0.65)',
+                          border: isLight ? '1px solid #e2e8f0' : '1px solid rgba(255, 255, 255, 0.08)',
+                          borderRadius: '10px',
+                          padding: '16px 18px',
                           display: 'flex',
                           flexDirection: 'column',
-                          gap: '10px',
-                          transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
+                          gap: '12px',
+                          boxShadow: isLight 
+                            ? '0 2px 10px -2px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(15, 23, 42, 0.04)' 
+                            : '0 4px 16px rgba(0, 0, 0, 0.3)',
+                          transition: 'all 0.22s cubic-bezier(0.4, 0, 0.2, 1)'
                         }}
                       >
                         {isEditing ? (
@@ -1667,55 +1812,74 @@ const AIProjectDashboard = ({ projectId, projectName, onTasksUpdated }) => {
                               >
                                 <option value="">Select Assignee</option>
                                 {employees.map(emp => (
-                                  <option key={emp._id} value={emp._id}>
-                                    {emp.user?.fullname || emp.designation}
-                                  </option>
+                                   <option key={emp._id} value={emp._id}>
+                                     {emp.user?.fullname || emp.designation}
+                                   </option>
                                 ))}
                               </select>
                             </div>
 
                             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '4px' }}>
                               <button className="btn btn-secondary" onClick={() => setEditingTaskIdx(null)} style={{ padding: '4px 10px', fontSize: '11px' }}>Cancel</button>
-                              <button className="btn btn-primary" onClick={handleSaveEdit} style={{ padding: '4px 12px', fontSize: '11px', backgroundColor: '#f59e0b', borderColor: '#f59e0b', color: '#111827' }}>Save</button>
+                              <button className="btn btn-primary" onClick={handleSaveEdit} style={{ padding: '4px 12px', fontSize: '11px', backgroundColor: '#4f46e5', borderColor: '#4338ca', color: '#ffffff' }}>Save</button>
                             </div>
                           </div>
                         ) : (
                           <>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
-                              <h5 style={{ fontSize: '13.5px', fontWeight: 750, color: 'var(--text-main)', margin: 0, lineHeight: 1.3 }}>
+                              <h5 style={{ fontSize: '14px', fontWeight: 750, color: isLight ? '#0f172a' : '#f8fafc', margin: 0, lineHeight: 1.35 }}>
                                 {task.title}
                               </h5>
                               <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexShrink: 0 }}>
-                                <span className={`badge ${
-                                  task.priority === 'Critical' || task.priority === 'High' ? 'badge-danger' : 
-                                  task.priority === 'Medium' ? 'badge-warning' : 'badge-info'
-                                }`} style={{ fontSize: '9px', padding: '2px 6px' }}>
+                                <span style={{
+                                  fontSize: '9.5px',
+                                  fontWeight: 750,
+                                  padding: '2px 7px',
+                                  borderRadius: '4px',
+                                  color: pStyle.color,
+                                  backgroundColor: pStyle.bg,
+                                  border: pStyle.border,
+                                  letterSpacing: '0.02em',
+                                  textTransform: 'uppercase'
+                                }}>
                                   {task.priority}
                                 </span>
-                                <button onClick={() => handleStartEdit(taskIdx, task)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '2px' }} title="Edit Task">
+                                <button 
+                                  onClick={() => handleStartEdit(taskIdx, task)} 
+                                  style={{ background: 'none', border: 'none', color: isLight ? '#64748b' : '#94a3b8', cursor: 'pointer', padding: '2px', transition: 'color 0.2s' }} 
+                                  title="Edit Task"
+                                  onMouseEnter={e => e.currentTarget.style.color = isLight ? '#4f46e5' : '#818cf8'}
+                                  onMouseLeave={e => e.currentTarget.style.color = isLight ? '#64748b' : '#94a3b8'}
+                                >
                                   <Edit3 size={13} />
                                 </button>
-                                <button onClick={() => handleDeleteTask(taskIdx)} style={{ background: 'none', border: 'none', color: 'var(--color-danger)', cursor: 'pointer', padding: '2px' }} title="Delete Task">
+                                <button 
+                                  onClick={() => handleDeleteTask(taskIdx)} 
+                                  style={{ background: 'none', border: 'none', color: isLight ? '#dc2626' : 'var(--color-danger)', cursor: 'pointer', padding: '2px', transition: 'color 0.2s' }} 
+                                  title="Delete Task"
+                                  onMouseEnter={e => e.currentTarget.style.color = '#ef4444'}
+                                  onMouseLeave={e => e.currentTarget.style.color = isLight ? '#dc2626' : 'var(--color-danger)'}
+                                >
                                   <Trash2 size={13} />
                                 </button>
                               </div>
                             </div>
                             
-                            <p style={{ fontSize: '12px', color: 'var(--text-muted)', margin: 0, lineHeight: 1.45 }}>
+                            <p style={{ fontSize: '12.5px', color: isLight ? '#475569' : '#94a3b8', margin: 0, lineHeight: 1.5 }}>
                               {task.description}
                             </p>
                             
                             {task.requiredSkills && task.requiredSkills.length > 0 && (
-                              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
                                 {task.requiredSkills.map((skill, sIdx) => (
                                   <span key={`${skill}-${sIdx}`} style={{
-                                    fontSize: '9.5px',
-                                    backgroundColor: 'rgba(245, 158, 11, 0.07)',
-                                    color: '#f59e0b',
-                                    border: '1px solid rgba(245, 158, 11, 0.18)',
-                                    padding: '1px 6px',
-                                    borderRadius: '4px',
-                                    fontWeight: 600
+                                    fontSize: '10px',
+                                    backgroundColor: isLight ? '#f1f5f9' : 'rgba(245, 158, 11, 0.08)',
+                                    color: isLight ? '#334155' : '#f59e0b',
+                                    border: isLight ? '1px solid #e2e8f0' : '1px solid rgba(245, 158, 11, 0.2)',
+                                    padding: '2px 7px',
+                                    borderRadius: '5px',
+                                    fontWeight: 650
                                   }}>
                                     {skill}
                                   </span>
@@ -1724,8 +1888,8 @@ const AIProjectDashboard = ({ projectId, projectName, onTasksUpdated }) => {
                             )}
 
                             {task.dependencies && task.dependencies.length > 0 && (
-                              <div style={{ fontSize: '10px', color: '#64748b' }}>
-                                <span style={{ fontWeight: 650 }}>Depends on: </span>
+                              <div style={{ fontSize: '11px', color: isLight ? '#64748b' : '#94a3b8' }}>
+                                <span style={{ fontWeight: 700, color: isLight ? '#475569' : '#cbd5e1' }}>Depends on: </span>
                                 {task.dependencies.join(', ')}
                               </div>
                             )}
@@ -1734,31 +1898,31 @@ const AIProjectDashboard = ({ projectId, projectName, onTasksUpdated }) => {
                               display: 'flex', 
                               justifyContent: 'space-between', 
                               alignItems: 'center', 
-                              borderTop: '1px solid var(--border-color)', 
-                              paddingTop: '8px',
-                              fontSize: '11px',
-                              color: 'var(--text-muted)',
+                              borderTop: isLight ? '1px solid #f1f5f9' : '1px solid rgba(255, 255, 255, 0.08)', 
+                              paddingTop: '10px',
+                              fontSize: '11.5px',
+                              color: isLight ? '#64748b' : '#94a3b8',
                               marginTop: '2px'
                             }}>
-                              <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 600 }}>
-                                <Clock size={12} />
+                              <span style={{ display: 'flex', alignItems: 'center', gap: '5px', fontWeight: 650, color: isLight ? '#475569' : '#94a3b8' }}>
+                                <Clock size={13} style={{ color: isLight ? '#64748b' : '#94a3b8' }} />
                                 {task.estimatedHours}h
                               </span>
 
                               <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                                 {task.assignedTo ? (
                                   <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                                    <User size={12} style={{ color: 'var(--color-success)' }} />
-                                    <span style={{ color: 'var(--text-main)', fontWeight: 600 }}>{getEmployeeName(task.assignedTo)}</span>
+                                    <User size={13} style={{ color: '#10b981' }} />
+                                    <span style={{ color: isLight ? '#0f172a' : '#f8fafc', fontWeight: 700 }}>{getEmployeeName(task.assignedTo)}</span>
                                     {phaseTeam.includes(task.assignedTo) && (
                                       <span style={{
                                         fontSize: '9px',
-                                        backgroundColor: 'rgba(99, 102, 241, 0.15)',
-                                        color: '#818cf8',
-                                        padding: '1px 5px',
+                                        backgroundColor: isLight ? '#eef2ff' : 'rgba(99, 102, 241, 0.15)',
+                                        color: isLight ? '#4338ca' : '#818cf8',
+                                        padding: '1px 6px',
                                         borderRadius: '4px',
                                         fontWeight: 700,
-                                        border: '1px solid rgba(99, 102, 241, 0.3)'
+                                        border: isLight ? '1px solid #c7d2fe' : '1px solid rgba(99, 102, 241, 0.3)'
                                       }}>
                                         Phase Team
                                       </span>
@@ -1768,9 +1932,9 @@ const AIProjectDashboard = ({ projectId, projectName, onTasksUpdated }) => {
                                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                                     <span style={{ 
                                       fontSize: '9.5px', 
-                                      color: '#ef4444', 
-                                      backgroundColor: 'rgba(239, 68, 68, 0.15)', 
-                                      border: '1px solid rgba(239, 68, 68, 0.4)',
+                                      color: isLight ? '#b91c1c' : '#ef4444', 
+                                      backgroundColor: isLight ? '#fef2f2' : 'rgba(239, 68, 68, 0.15)', 
+                                      border: isLight ? '1px solid #fecaca' : '1px solid rgba(239, 68, 68, 0.4)',
                                       padding: '2px 7px', 
                                       borderRadius: '4px', 
                                       fontWeight: 750,
@@ -1782,8 +1946,8 @@ const AIProjectDashboard = ({ projectId, projectName, onTasksUpdated }) => {
                                       Unassigned
                                     </span>
                                     {rec && (
-                                      <span style={{ fontSize: '10.5px', color: '#94a3b8' }} title={`AI Suggestion: ${rec.reason}`}>
-                                        (Rec: <strong style={{ color: '#f59e0b' }}>{rec.recommendedEmployeeName}</strong>)
+                                      <span style={{ fontSize: '11px', color: isLight ? '#64748b' : '#94a3b8' }} title={`AI Suggestion: ${rec.reason}`}>
+                                        (Rec: <strong style={{ color: isLight ? '#b45309' : '#f59e0b' }}>{rec.recommendedEmployeeName}</strong>)
                                       </span>
                                     )}
                                   </div>
@@ -1809,26 +1973,44 @@ const AIProjectDashboard = ({ projectId, projectName, onTasksUpdated }) => {
             className="btn btn-secondary sm-phase-distribute-btn" 
             onClick={handleAutoAssignAllPhases} 
             title="Automatically assign recommended employees across all phases"
-            style={{ color: '#38bdf8', borderColor: 'rgba(56, 189, 248, 0.35)', fontWeight: 650 }}
+            style={{
+              backgroundColor: isLight ? '#f0f9ff' : 'rgba(56, 189, 248, 0.1)',
+              borderColor: isLight ? '#bae6fd' : 'rgba(56, 189, 248, 0.35)',
+              color: isLight ? '#0284c7' : '#38bdf8',
+              fontWeight: 700,
+              boxShadow: isLight ? '0 1px 3px rgba(2, 132, 199, 0.08)' : 'none'
+            }}
           >
             <Sparkles size={14} />
             Auto-Assign All Phases
           </button>
         </div>
         <div style={{ display: 'flex', gap: '12px' }}>
-          <button className="btn btn-secondary" onClick={handleDiscard}>Discard Plan</button>
+          <button 
+            className="btn btn-secondary" 
+            onClick={handleDiscard}
+            style={{
+              backgroundColor: isLight ? '#f8fafc' : 'rgba(255, 255, 255, 0.05)',
+              borderColor: isLight ? '#cbd5e1' : 'rgba(255, 255, 255, 0.1)',
+              color: isLight ? '#334155' : '#cbd5e1',
+              fontWeight: 650
+            }}
+          >
+            Discard Plan
+          </button>
           <button 
             className="btn btn-primary" 
             onClick={handleApprove} 
             disabled={isApproving}
             style={{ 
-              backgroundColor: '#f59e0b', 
-              borderColor: '#f59e0b', 
-              color: '#111827', 
+              backgroundColor: '#4f46e5', 
+              borderColor: '#4338ca', 
+              color: '#ffffff', 
               fontWeight: 750, 
               padding: '10px 28px',
               opacity: isApproving ? 0.7 : 1,
-              cursor: isApproving ? 'not-allowed' : 'pointer'
+              cursor: isApproving ? 'not-allowed' : 'pointer',
+              boxShadow: '0 4px 14px rgba(79, 70, 229, 0.35)'
             }}
           >
             <Check size={16} />

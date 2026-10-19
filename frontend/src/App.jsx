@@ -6,6 +6,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
 import GlassToastContainer, { showGlassToast } from './components/GlassToast';
+import FloatingMessages from './components/FloatingMessages';
 
 // Pages
 import Login from './pages/Login';
@@ -75,6 +76,9 @@ const ProtectedLayout = () => {
           <Outlet />
         </main>
       </div>
+
+      {/* Floating Direct Messages Drawer (Matches Instagram/LinkedIn Messages) */}
+      <FloatingMessages />
     </div>
   );
 };

@@ -50,7 +50,6 @@ const Dashboard = () => {
   const navigate = useNavigate();
 
   // Widget boxes wrap / unwrap states
-  const [isChatWrapped, setIsChatWrapped] = useState(false);
   const [isDeadlinesWrapped, setIsDeadlinesWrapped] = useState(false);
   const [isActivitiesWrapped, setIsActivitiesWrapped] = useState(false);
 
@@ -210,10 +209,6 @@ const Dashboard = () => {
     ]
   });
 
-  // Team Chat state
-  const [chatMessages, setChatMessages] = useState([]);
-  const [chatInput, setChatInput] = useState('');
-  const chatScrollRef = useRef(null);
 
   // Claude AI Assistant state
   const [aiInput, setAiInput] = useState('');
@@ -248,62 +243,6 @@ const Dashboard = () => {
     fetchLiveDashboard();
   }, []);
 
-  // Sync chat messages
-  useEffect(() => {
-    if (dashboardStats.teamChat && chatMessages.length === 0) {
-      setChatMessages(dashboardStats.teamChat);
-    }
-  }, [dashboardStats.teamChat]);
-
-  // Handle sending team chat message
-  const handleSendMessage = (e) => {
-    e?.preventDefault();
-    if (!chatInput.trim()) return;
-
-    const newMsg = {
-      id: Date.now(),
-      sender: "Harsh Saini",
-      initials: "HS",
-      color: "#6366f1",
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      text: chatInput.trim(),
-      reactions: []
-    };
-
-    setChatMessages(prev => [...prev, newMsg]);
-    setChatInput('');
-
-    setTimeout(() => {
-      if (chatScrollRef.current) {
-        chatScrollRef.current.scrollTop = chatScrollRef.current.scrollHeight;
-      }
-    }, 50);
-  };
-
-  // Handle chat reaction
-  const handleReactionClick = (msgId, emojiStr) => {
-    setChatMessages(prev => prev.map(m => {
-      if (m.id === msgId) {
-        const existing = (m.reactions || []).find(r => r.emoji === emojiStr);
-        if (existing) {
-          return {
-            ...m,
-            reactions: m.reactions.map(r => r.emoji === emojiStr ? {
-              ...r,
-              count: r.reacted ? r.count - 1 : r.count + 1,
-              reacted: !r.reacted
-            } : r).filter(r => r.count > 0)
-          };
-        } else {
-          return {
-            ...m,
-            reactions: [...(m.reactions || []), { emoji: emojiStr, count: 1, reacted: true }]
-          };
-        }
-      }
-      return m;
-    }));
-  };
 
   // Handle Claude AI Assistant Query
   const handleClaudeQuery = async (queryText, quickActionName) => {
@@ -1070,153 +1009,7 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* 2. TEAM CHAT WIDGET */}
-          <div className="db-card" style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: isChatWrapped ? 0 : '10px', transition: 'all 0.3s ease' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: isChatWrapped ? 'none' : '1px solid rgba(255,255,255,0.05)', paddingBottom: isChatWrapped ? 0 : '6px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <div 
-                  className="box-title-icon" 
-                  style={{ 
-                    background: 'rgba(99, 102, 241, 0.15)', 
-                    color: '#818cf8',
-                    border: '1px solid rgba(99, 102, 241, 0.3)' 
-                  }}
-                  title="Team Chat"
-                >
-                  <MessageSquare size={13} />
-                </div>
-                <h4 style={{ fontSize: '13px', fontWeight: 750, color: 'var(--text-primary)', margin: 0 }}>Team Chat</h4>
-                {isChatWrapped && (
-                  <span className="box-wrapped-pill" style={{ color: '#818cf8', borderColor: 'rgba(99, 102, 241, 0.3)' }}>
-                    {chatMessages.length} msgs
-                  </span>
-                )}
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span 
-                  onClick={() => navigate('/projects')}
-                  style={{ fontSize: '11px', color: '#818cf8', fontWeight: 600, cursor: 'pointer' }}
-                >
-                  View all
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setIsChatWrapped(!isChatWrapped)}
-                  className={`box-toggle-btn ${isChatWrapped ? 'wrapped' : ''}`}
-                  title={isChatWrapped ? "Unwrap Team Chat" : "Wrap Team Chat"}
-                >
-                  <ChevronDown size={14} />
-                </button>
-              </div>
-            </div>
-
-            <div className={`box-collapsible-wrapper ${isChatWrapped ? 'wrapped' : 'unwrapped'}`} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '4px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <span style={{ fontSize: '11.5px', fontWeight: 700, color: 'var(--text-primary)' }}># Project-Team</span>
-                  <ChevronDown size={12} style={{ color: 'var(--text-muted)' }} />
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '10px', color: '#10b981' }}>
-                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#10b981', animation: 'pulseLiveDot 2s infinite' }} />
-                  <span>8 members online</span>
-                </div>
-              </div>
-
-              {/* Message Stream */}
-              <div ref={chatScrollRef} style={{ maxHeight: '170px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px', paddingRight: '4px' }} className="db-scroll-area">
-                {chatMessages.slice(0, 4).map((msg) => (
-                  <div key={msg.id} style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <div style={{
-                        width: '18px',
-                        height: '18px',
-                        borderRadius: '50%',
-                        backgroundColor: msg.color,
-                        color: 'white',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '8px',
-                        fontWeight: 800
-                      }}>
-                        {msg.initials}
-                      </div>
-                      <span style={{ fontSize: '11px', fontWeight: 650, color: 'var(--text-primary)' }}>{msg.sender}</span>
-                      <span style={{ fontSize: '9px', color: 'var(--text-muted)' }}>{msg.time}</span>
-                    </div>
-
-                    <div className="db-chat-incoming" style={{ marginLeft: '24px', padding: '6px 9px', fontSize: '11px' }}>
-                      {msg.text}
-                    </div>
-
-                    {msg.reactions && msg.reactions.length > 0 && (
-                      <div style={{ display: 'flex', gap: '4px', marginLeft: '24px', marginTop: '2px' }}>
-                        {msg.reactions.map((r, rIdx) => (
-                          <button
-                            key={rIdx}
-                            onClick={() => handleReactionClick(msg.id, r.emoji)}
-                            style={{
-                              background: r.reacted ? 'rgba(99, 102, 241, 0.2)' : 'var(--bg-surface-elevated)',
-                              border: r.reacted ? '1px solid rgba(99, 102, 241, 0.4)' : '1px solid var(--border-subtle)',
-                              borderRadius: '10px',
-                              padding: '1px 6px',
-                              color: r.reacted ? '#a5b4fc' : 'var(--text-muted)',
-                              fontSize: '9px',
-                              cursor: 'pointer',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '3px'
-                            }}
-                          >
-                            <span>{r.emoji}</span>
-                            <span>{r.count}</span>
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              {/* Chat Input */}
-              <form onSubmit={handleSendMessage} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'var(--input-bg)', borderRadius: '8px', padding: '4px 8px', border: '1px solid var(--input-border)' }}>
-                <input
-                  type="text"
-                  placeholder="Type a message..."
-                  value={chatInput}
-                  onChange={(e) => setChatInput(e.target.value)}
-                  style={{
-                    background: 'transparent',
-                    border: 'none',
-                    color: 'var(--input-text)',
-                    fontSize: '11px',
-                    flex: 1,
-                    outline: 'none'
-                  }}
-                />
-                <Smile size={13} style={{ color: 'var(--text-muted)', cursor: 'pointer' }} onClick={() => setChatInput(prev => prev + ' 👍')} />
-                <button
-                  type="submit"
-                  style={{
-                    width: '22px',
-                    height: '22px',
-                    borderRadius: '50%',
-                    background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
-                    color: 'white',
-                    border: 'none',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: 'pointer'
-                  }}
-                >
-                  <Send size={10} />
-                </button>
-              </form>
-            </div>
-          </div>
-
-          {/* 3. UPCOMING DEADLINES */}
+          {/* 2. UPCOMING DEADLINES */}
           <div className="db-card" style={{ padding: '14px 16px', transition: 'all 0.3s ease' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: isDeadlinesWrapped ? 0 : '10px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>

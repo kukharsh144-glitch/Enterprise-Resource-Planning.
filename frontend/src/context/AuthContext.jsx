@@ -108,7 +108,11 @@ export const AuthProvider = ({ children }) => {
       }
       return { success: false, message: 'Invalid response from server' };
     } catch (error) {
-      const message = error.response?.data?.message || 'Login failed. Please check credentials.';
+      const message =
+        error.response?.data?.message ||
+        (!error.response
+          ? 'Cannot connect to backend server. Please verify the backend is running on port 7000.'
+          : 'Login failed. Please check credentials.');
       return { success: false, message };
     }
   };

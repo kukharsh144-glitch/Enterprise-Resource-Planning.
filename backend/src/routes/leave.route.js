@@ -95,6 +95,28 @@ router.put(
 );
 
 /**
+ * @route   PATCH /api/leaves/:id/status
+ * @desc    Update a leave request status (Approved, Rejected, Applied)
+ * @access  Super Admin, Admin, Manager, HR
+ */
+router.patch(
+  "/:id/status",
+  authorize(["Super Admin", "Admin", "Manager", "HR"]),
+  leaveController.updateLeaveStatus
+);
+
+/**
+ * @route   PUT /api/leaves/:id/status
+ * @desc    Update a leave request status
+ * @access  Super Admin, Admin, Manager, HR
+ */
+router.put(
+  "/:id/status",
+  authorize(["Super Admin", "Admin", "Manager", "HR"]),
+  leaveController.updateLeaveStatus
+);
+
+/**
  * @route   PUT /api/leaves/:id/cancel
  * @desc    Cancel/withdraw a still-pending leave request
  * @access  Employee (own leave), Super Admin, Admin, Manager, HR (any)

@@ -228,7 +228,7 @@ export default function LeaveRequests() {
 
   const handleStatusChange = async (id, newStatus) => {
     try {
-      await api.patch(`/leaves/${id}/status`, { status: newStatus.toLowerCase() }).catch(() => null);
+      await api.patch(`/leaves/${id}/status`, { status: newStatus.toLowerCase() });
       setLeaves(prev =>
         prev.map(l => (l._id === id ? { ...l, status: newStatus } : l))
       );

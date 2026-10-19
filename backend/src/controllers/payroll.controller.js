@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import Payroll from "../models/Payroll.model.js";
 import Employee from "../models/Employee.model.js";
 import LedgerEntry from "../models/LedgerEntry.model.js";
@@ -20,18 +21,24 @@ export const getPayrollHistory = async (req, res, next) => {
     }
 
     const { employeeId, status, payCycle, startDate, endDate, page = 1, limit = 10 } = req.query;
+    const targetEmployeeId = employeeId || req.query.employee;
 
     // Build filter
     const filter = {};
-    if (employeeId) {
+    if (targetEmployeeId) {
+      if (!mongoose.Types.ObjectId.isValid(targetEmployeeId)) {
+        return res.status(400).json(
+          new apiError(400, "Invalid employee ID format")
+        );
+      }
       // Validate employee exists
-      const empExists = await Employee.findById(employeeId);
+      const empExists = await Employee.findById(targetEmployeeId);
       if (!empExists) {
         return res.status(404).json(
           new apiError(404, "Employee not found")
         );
       }
-      filter.employee = employeeId;
+      filter.employee = targetEmployeeId;
     }
 
     if (status) {
@@ -122,7 +129,7 @@ export const getPayrollHistory = async (req, res, next) => {
  */
 export const getPayrollById = async (req, res, next) => {
   try {
-    const { payrollId } = req.params;
+    const payrollId = req.params.payrollId || req.params.id;
 
     if (!payrollId) {
       return res.status(400).json(
@@ -229,31 +236,31 @@ export const runPayroll = async (req, res, next) => {
         const tax = baseSalary * 0.1; // 10% tax
         const pf = baseSalary * 0.05; // 5% PF
 
-        // Create or update payroll record
-        const payroll = await Payroll.findOneAndUpdate(
-          { employee: emp._id, payCycle },
-          {
-            $setOnInsert: {
-              employee: emp._id,
-              payCycle,
-              baseSalary,
-              bonus: 0,
-              tax,
-              providentFund: pf,
-              dearestAllowance: 0,
-              houseRentAllowance: 0,
-              medicalAllowance: 0,
-              leaseDeduction: 0,
-              otherDeductions: 0,
-              status: "Draft",
-            },
-          },
-          {
-            upsert: true,
-            new: true,
-            runValidators: true,
+        // Create or find payroll record; save triggers the pre("save") hook to compute netSalary
+        let payroll = await Payroll.findOne({ employee: emp._id, payCycle });
+        if (!payroll) {
+          payroll = new Payroll({
+            employee: emp._id,
+            payCycle,
+            baseSalary,
+            bonus: 0,
+            tax,
+            providentFund: pf,
+            dearestAllowance: 0,
+            houseRentAllowance: 0,
+            medicalAllowance: 0,
+            leaveDeduction: 0,
+            otherDeductions: 0,
+            status: "Draft",
+          });
+          await payroll.save();
+        } else if (payroll.status === "Draft") {
+          // If existing draft, ensure leaveDeduction exists and re-save to trigger netSalary hook
+          if (payroll.leaveDeduction === undefined) {
+            payroll.leaveDeduction = 0;
           }
-        );
+          await payroll.save();
+        }
 
         payrollRecords.push(payroll);
       } catch (empError) {
@@ -309,12 +316,13 @@ export const updatePayroll = async (req, res, next) => {
       );
     }
 
-    const { payrollId } = req.params;
+    const payrollId = req.params.payrollId || req.params.id;
     const {
       bonus,
       dearestAllowance,
       houseRentAllowance,
       medicalAllowance,
+      leaveDeduction,
       leaseDeduction,
       otherDeductions,
       remarks,
@@ -361,11 +369,12 @@ export const updatePayroll = async (req, res, next) => {
       }
       updateData.medicalAllowance = medicalAllowance;
     }
-    if (leaseDeduction !== undefined) {
-      if (leaseDeduction < 0) {
-        return res.status(400).json(new apiError(400, "Lease deduction cannot be negative"));
+    const leaveDed = leaveDeduction !== undefined ? leaveDeduction : leaseDeduction;
+    if (leaveDed !== undefined) {
+      if (leaveDed < 0) {
+        return res.status(400).json(new apiError(400, "Leave deduction cannot be negative"));
       }
-      updateData.leaseDeduction = leaseDeduction;
+      updateData.leaveDeduction = leaveDed;
     }
     if (otherDeductions !== undefined) {
       if (otherDeductions < 0) {
@@ -410,7 +419,7 @@ export const submitPayroll = async (req, res, next) => {
       );
     }
 
-    const { payrollId } = req.params;
+    const payrollId = req.params.payrollId || req.params.id;
 
     const payroll = await Payroll.findById(payrollId);
     if (!payroll) {
@@ -449,14 +458,14 @@ export const submitPayroll = async (req, res, next) => {
  */
 export const approvePayroll = async (req, res, next) => {
   try {
-    // Only Accountant and Super Admin can approve
-    if (!["Super Admin", "Admin", "Accountant"].includes(req.user?.role)) {
+    // HR, Accountant, Admin, and Super Admin can approve
+    if (!["Super Admin", "Admin", "HR", "Accountant"].includes(req.user?.role)) {
       return res.status(403).json(
-        new apiError(403, "Unauthorized: Only Accountant can approve payroll")
+        new apiError(403, "Unauthorized: Only HR, Accountant, and Admin can approve payroll")
       );
     }
 
-    const { payrollId } = req.params;
+    const payrollId = req.params.payrollId || req.params.id;
     const { notes } = req.body;
 
     const payroll = await Payroll.findById(payrollId);
@@ -499,13 +508,14 @@ export const approvePayroll = async (req, res, next) => {
  */
 export const rejectPayroll = async (req, res, next) => {
   try {
-    if (!["Super Admin", "Admin", "Accountant"].includes(req.user?.role)) {
+    // HR, Accountant, Admin, and Super Admin can reject
+    if (!["Super Admin", "Admin", "HR", "Accountant"].includes(req.user?.role)) {
       return res.status(403).json(
-        new apiError(403, "Unauthorized: Only Accountant can reject payroll")
+        new apiError(403, "Unauthorized: Only HR, Accountant, and Admin can reject payroll")
       );
     }
 
-    const { payrollId } = req.params;
+    const payrollId = req.params.payrollId || req.params.id;
     const { reason } = req.body;
 
     if (!reason) {
@@ -561,8 +571,56 @@ export const processPayroll = async (req, res, next) => {
       );
     }
 
-    const { payCycleMonth } = req.body;
+    const payrollId = req.params.payrollId || req.params.id;
+    const payCycleMonth = req.body?.payCycleMonth || req.query?.payCycleMonth;
 
+    // Single payroll record processing
+    if (payrollId) {
+      const payroll = await Payroll.findById(payrollId);
+      if (!payroll) {
+        return res.status(404).json(
+          new apiError(404, "Payroll record not found")
+        );
+      }
+
+      if (payroll.status !== "Approved") {
+        return res.status(400).json(
+          new apiError(400, `Cannot process payroll in ${payroll.status} status. Expected: Approved`)
+        );
+      }
+
+      payroll.markProcessed(req.user._id);
+
+      const ledgerEntry = await LedgerEntry.create({
+        date: new Date(),
+        description: `Salary payment for ${payroll.payCycle}`,
+        debitAccount: "Salary Expense",
+        debitAmount: payroll.netSalary,
+        creditAccount: "Bank",
+        creditAmount: payroll.netSalary,
+        reference: `PAYROLL-${payroll._id}`,
+        type: "Expense",
+        createdBy: req.user._id,
+      });
+
+      payroll.ledgerEntry = ledgerEntry._id;
+      await payroll.save();
+
+      await ActivityLog.create({
+        actor: req.user._id,
+        action: "process_payroll",
+        entityType: "Payroll",
+        entityId: payroll._id,
+        details: { payCycle: payroll.payCycle, single: true },
+        timestamp: new Date(),
+      });
+
+      return res.status(200).json(
+        new apiResponse(200, payroll, "Payroll processed and ledger entry created")
+      );
+    }
+
+    // Batch payroll cycle processing
     if (!payCycleMonth) {
       return res.status(400).json(
         new apiError(400, "Pay cycle month (YYYY-MM) is required")
@@ -604,6 +662,7 @@ export const processPayroll = async (req, res, next) => {
           creditAmount: payroll.netSalary,
           reference: `PAYROLL-${payroll._id}`,
           type: "Expense",
+          createdBy: req.user._id,
         });
 
         payroll.ledgerEntry = ledgerEntry._id;
@@ -658,7 +717,7 @@ export const markPayrollAsPaid = async (req, res, next) => {
       );
     }
 
-    const { payrollId } = req.params;
+    const payrollId = req.params.payrollId || req.params.id;
     const { paymentDate, transactionId, paymentMethod = "Bank Transfer" } = req.body;
 
     if (!paymentDate) {
@@ -744,6 +803,114 @@ export const getPayrollStatistics = async (req, res, next) => {
 
     return res.status(200).json(
       new apiResponse(200, stats, "Payroll statistics retrieved")
+    );
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Update Payroll Status (Generic status endpoint for frontend compatibility)
+ */
+export const updatePayrollStatus = async (req, res, next) => {
+  try {
+    if (!["Super Admin", "Admin", "HR", "Accountant"].includes(req.user?.role)) {
+      return res.status(403).json(
+        new apiError(403, "Unauthorized")
+      );
+    }
+
+    const payrollId = req.params.payrollId || req.params.id;
+    const { status, notes, reason, paymentDate, transactionId, paymentMethod } = req.body;
+
+    if (!payrollId) {
+      return res.status(400).json(new apiError(400, "Payroll ID is required"));
+    }
+
+    if (!status) {
+      return res.status(400).json(new apiError(400, "Status is required"));
+    }
+
+    const payroll = await Payroll.findById(payrollId);
+    if (!payroll) {
+      return res.status(404).json(new apiError(404, "Payroll record not found"));
+    }
+
+    const normalizedStatus = status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
+
+    if (normalizedStatus === "Submitted") {
+      payroll.status = "Submitted";
+      await payroll.save();
+      await ActivityLog.create({
+        actor: req.user._id,
+        action: "submit_payroll",
+        entityType: "Payroll",
+        entityId: payroll._id,
+        timestamp: new Date(),
+      });
+    } else if (normalizedStatus === "Approved") {
+      payroll.approve(req.user._id, notes || null);
+      await payroll.save();
+      await ActivityLog.create({
+        actor: req.user._id,
+        action: "approve_payroll",
+        entityType: "Payroll",
+        entityId: payroll._id,
+        details: { notes },
+        timestamp: new Date(),
+      });
+    } else if (normalizedStatus === "Rejected") {
+      payroll.reject(req.user._id, reason || notes || "Rejected");
+      await payroll.save();
+      await ActivityLog.create({
+        actor: req.user._id,
+        action: "reject_payroll",
+        entityType: "Payroll",
+        entityId: payroll._id,
+        details: { reason: reason || notes },
+        timestamp: new Date(),
+      });
+    } else if (normalizedStatus === "Processed") {
+      payroll.markProcessed(req.user._id);
+      const ledgerEntry = await LedgerEntry.create({
+        date: new Date(),
+        description: `Salary payment for ${payroll.payCycle}`,
+        debitAccount: "Salary Expense",
+        debitAmount: payroll.netSalary,
+        creditAccount: "Bank",
+        creditAmount: payroll.netSalary,
+        reference: `PAYROLL-${payroll._id}`,
+        type: "Expense",
+        createdBy: req.user._id,
+      });
+      payroll.ledgerEntry = ledgerEntry._id;
+      await payroll.save();
+      await ActivityLog.create({
+        actor: req.user._id,
+        action: "process_payroll",
+        entityType: "Payroll",
+        entityId: payroll._id,
+        details: { payCycle: payroll.payCycle },
+        timestamp: new Date(),
+      });
+    } else if (normalizedStatus === "Paid") {
+      payroll.markPaid(new Date(paymentDate || Date.now()), transactionId || `TXN-${Date.now()}`, paymentMethod || "Bank Transfer");
+      await payroll.save();
+      await ActivityLog.create({
+        actor: req.user._id,
+        action: "mark_payroll_paid",
+        entityType: "Payroll",
+        entityId: payroll._id,
+        details: { transactionId, method: paymentMethod },
+        timestamp: new Date(),
+      });
+    } else {
+      payroll.status = normalizedStatus;
+      await payroll.save();
+    }
+
+    return res.status(200).json(
+      new apiResponse(200, payroll, `Payroll status updated to ${normalizedStatus}`)
     );
   } catch (error) {
     next(error);

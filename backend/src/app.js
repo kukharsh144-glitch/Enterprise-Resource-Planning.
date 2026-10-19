@@ -135,6 +135,7 @@ app.use("/api/leaves", leaveRoutes);
 app.use("/api/assets", assetRoutes);
 app.use("/api/departments", departmentRoutes);
 app.use("/api/payroll", payrollRoutes);
+app.use("/api/payrolls", payrollRoutes);
 app.use("/api/customers", customerRoutes);
 app.use("/api/inventory", inventoryRoutes);
 app.use("/api/orders", orderRoutes);

@@ -447,6 +447,87 @@ export const rejectLeave = asyncHandler(async (req, res) => {
 });
 
 /**
+ * @desc    Update leave status (Generic endpoint for PATCH /api/leaves/:id/status and PUT /api/leaves/:id/status)
+ * @route   PATCH /api/leaves/:id/status
+ * @access  Super Admin, Admin, Manager, HR
+ */
+export const updateLeaveStatus = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { status, reason } = req.body;
+
+  if (!id?.match(/^[0-9a-fA-F]{24}$/)) {
+    throw new apiError(400, "Invalid leave ID format");
+  }
+
+  if (!checkLeavePermission(req.user.role, "approve")) {
+    throw new apiError(403, "Not authorized to update leave status");
+  }
+
+  if (!status) {
+    throw new apiError(400, "Status is required");
+  }
+
+  // Normalize: 'approved' -> 'Approved', 'rejected' -> 'Rejected', 'applied' -> 'Applied', 'pending' -> 'Applied'
+  let normalizedStatus;
+  const lower = status.toLowerCase();
+  if (lower === "approved") {
+    normalizedStatus = "Approved";
+  } else if (lower === "rejected") {
+    normalizedStatus = "Rejected";
+  } else if (lower === "applied" || lower === "pending") {
+    normalizedStatus = "Applied";
+  } else {
+    throw new apiError(400, "Invalid status. Valid values: Approved, Rejected, Applied");
+  }
+
+  try {
+    const leave = await Leave.findById(id);
+    if (!leave) {
+      throw new apiError(404, "Leave record not found");
+    }
+
+    leave.status = normalizedStatus;
+    if (normalizedStatus === "Approved" || normalizedStatus === "Rejected") {
+      leave.approvedBy = req.user.id;
+    }
+    if (reason && normalizedStatus === "Rejected") {
+      leave.reason = leave.reason ? `${leave.reason} | Reason: ${reason}` : reason;
+    }
+
+    await leave.save();
+
+    await leave.populate([
+      { path: "employee", select: "designation department" },
+      { path: "approvedBy", select: "username email" },
+    ]);
+
+    const action = normalizedStatus === "Approved"
+      ? "approve_leave"
+      : normalizedStatus === "Rejected"
+      ? "reject_leave"
+      : "apply_leave";
+
+    await ActivityLog.logActivity({
+      actor: req.user.id,
+      action,
+      entityType: "Leave",
+      entityId: leave._id,
+      details: reason ? { reason } : undefined,
+    });
+
+    res.status(200).json(
+      new apiResponse(200, leave, `Leave status updated to ${normalizedStatus}`)
+    );
+
+    logger.info(`User ${req.user.id} updated leave ${id} status to ${normalizedStatus}`);
+  } catch (error) {
+    if (error instanceof apiError) throw error;
+    logger.error("Error updating leave status:", error);
+    throw new apiError(500, "Error updating leave status");
+  }
+});
+
+/**
  * @desc    Cancel/withdraw a leave request that is still pending
  * @route   PUT /api/leaves/:id/cancel
  * @access  Super Admin, Admin, Manager, HR (any), Employee (own only)
@@ -626,4 +707,5 @@ export default {
   cancelLeave,
   deleteLeave,
   getLeaveStatistics,
+  updateLeaveStatus,
 };

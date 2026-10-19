@@ -31,9 +31,18 @@ const Payroll = () => {
       setLoading(true);
       // Backend payroll processing endpoint
       const response = await api.get('/payroll');
-      const apiPayroll = response.data?.data || [];
+      const rawData = response.data?.data;
+      const apiPayroll = Array.isArray(rawData) ? rawData : (rawData?.payrolls || []);
       if (apiPayroll.length > 0) {
-        setPayrollList(apiPayroll);
+        const mapped = apiPayroll.map(p => ({
+          _id: p._id,
+          fullname: p.employee?.name || p.fullname || 'Employee',
+          base: p.baseSalary ?? p.base ?? 0,
+          allowances: (p.bonus || 0) + (p.dearestAllowance || 0) + (p.houseRentAllowance || 0) + (p.medicalAllowance || 0) || (p.allowances || 0),
+          deductions: (p.tax || 0) + (p.providentFund || 0) + (p.leaveDeduction || 0) + (p.otherDeductions || 0) || (p.deductions || 0),
+          status: p.status || 'Draft',
+        }));
+        setPayrollList(mapped);
       } else {
         setPayrollList(seedPayroll);
       }
